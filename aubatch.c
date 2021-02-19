@@ -13,7 +13,7 @@
 // define constants for initializating data
 
 // create a structure to hold job data
-typedef struct {
+struct Job {
     int id;
     char *name;
     int priority; // 0 to 7, with lower numbers being higher priority
@@ -21,23 +21,23 @@ typedef struct {
     int arrival_time; 
     int starting_time; 
     int finish_time;
-    struct job_t* next;
-} job_t;
+    struct Job* next;
+};
 
 // declare function to put a job in the queue
-int schedule(struct job_t*, struct job_t*, struct job_t*);
-int dispatch(struct job_t*, struct job_t*);
+int schedule(struct Job*, struct Job*, struct Job*);
+int dispatch(struct Job*, struct Job*);
 
 
 int main(int argc, char *argv[]) {
     //create the main job queue by initializing the head and tail pointers
-    struct job_t* head = NULL;
-    struct job_t* tail = NULL;
-    struct job_t* current = NULL;
+    struct Job* head = NULL;
+    struct Job* tail = NULL;
+    struct Job* current = NULL;
 
     //create the first job
-    job_t* first;
-    first = (job_t*)malloc(sizeof(job_t));
+    struct Job* first;
+    first = (struct Job*)malloc(sizeof(struct Job));
     if (first == NULL) {
         return 1;
     }
@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
 }
 
 // define scheduler function to put a job at the tail of the queue
-int schedule(struct job_t* current, struct job_t* head, struct job_t* tail) {
+int schedule(struct Job* current, struct Job* head, struct Job* tail) {
 
     // need mutex before changing queue pointers
     //if empty queue put first at head
@@ -75,9 +75,9 @@ int schedule(struct job_t* current, struct job_t* head, struct job_t* tail) {
 }
 
 // define dispatcher function to pull a job out of queue to run it
-int dispatch(struct job_t* head, struct job_t* tail) {
-    struct job_t* previous = NULL;
-    struct job_t* current = NULL;
+int dispatch(struct Job* head, struct Job* tail) {
+    struct Job* previous = NULL;
+    struct Job* current = NULL;
     // FCFS
     current = head;
 
@@ -87,7 +87,7 @@ int dispatch(struct job_t* head, struct job_t* tail) {
     //Priority - find highest firstest job, pull out of queue, need previous
 
     // remove next job from queue and send to processor
-    if (current == &head) {
+    if (current == head) {
         head = head->next;
     } else {
         previous->next = current->next;
