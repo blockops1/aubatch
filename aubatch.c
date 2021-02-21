@@ -48,30 +48,42 @@ int main(int argc, char *argv[])
     struct Job *head = NULL;
     //struct Job* tail = NULL;
     struct Job *newjob = NULL;
-    enum Policy policy = FCFS;
+    enum Policy policy = SJF;
     currentPolicy = policy;
     int success;
     //create the first job
-    struct Job first = {0};
-    //struct Job firstjob = {1, "firstjob", 0, 10, 0, 0, NULL};
-    //struct Job *first;
-    //first = (struct Job *)malloc(sizeof(struct Job));
-    //if (first == NULL)
-    //{
-    //    return 1;
-    //}
-    first.id = 1;
-    first.name = "firstjob";
-    first.priority = 0;
-    first.cpu_time = 10;
-    first.next = NULL;
-    policy = FCFS;
+    struct Job job1 = {0};
+    job1.id = 1;
+    job1.name = "job1";
+    job1.priority = 1;
+    job1.cpu_time = 10;
+    job1.arrival_time = 0;
+    job1.next = NULL;
+
+    //create second job
+    struct Job job2 = {0};
+    job2.id = 2;
+    job2.name = "job2";
+    job2.priority = 0;
+    job2.cpu_time = 20;
+    job2.arrival_time = 20;
+    job2.next = NULL;
+
+    //create third job
+    struct Job job3 = {0};
+    job3.id = 3;
+    job3.name = "job3";
+    job3.priority = 2;
+    job3.cpu_time = 5;
+    job3.arrival_time = 30;
+    job3.next = NULL;
+
 
     //current pointer at first job
     #ifdef DEBUG
-        printf("First ID: %d\n", first.id);
+        printf("First ID: %d\n", job1.id);
     #endif // DEBUG
-    newjob = &first;
+    newjob = &job1;
     #ifdef DEBUG
         printf("NewJob ID: %d\n", newjob->id);
     #endif // DEBUG
@@ -80,11 +92,16 @@ int main(int argc, char *argv[])
     printf("success value %d\n", success);
     #ifdef DEBUG
         if (head == NULL) printf("head is null\n");
-        if (newjob == NULL) printf("head is null\n");
+        if (newjob == NULL) printf("newjob is null\n");
         printf("made it back from schedule\n");
         //printf("function main head id: %d\n", head->id);
         printf("function main newjob id: %d\n", newjob->id);
     #endif // DEBUG
+    newjob = &job2;
+    schedule(&head, newjob, policy);
+    newjob = &job3;
+    schedule(&head, newjob, policy);
+
     printQueue(&head); 
 
     // call function for the dispatcher thread - this takes jobs out of the job queue
@@ -104,7 +121,7 @@ int schedule(struct Job** head, struct Job* newjob, enum Policy policy)
     {
         *head = newjob;
         #ifdef DEBUG
-            printf("schedule: head was nulll, assign and return\n");
+            printf("schedule: head was null, assign and return\n");
             if (*head == NULL) printf("head is null");
             if (newjob == NULL) printf("newjob is null");
             //printf("schedule: head id: %d\n", **head->id);
@@ -177,19 +194,19 @@ int sortedInsert(struct Job** head, struct Job* newjob, enum Policy policy)
         *head = newjob;
         return 0;
     }
-    if (policy == FCFS && (*head)->arrival_time < newjob->arrival_time)
+    if (policy == FCFS && (*head)->arrival_time > newjob->arrival_time)
     {
         newjob->next = *head;
         *head = newjob;
         return 0;
     }
-        if (policy == SJF && (*head)->cpu_time < newjob->cpu_time)
+        if (policy == SJF && (*head)->cpu_time > newjob->cpu_time)
     {
         newjob->next = *head;
         *head = newjob;
         return 0;
     }
-        if (policy == Priority && (*head)->priority < newjob->priority)
+        if (policy == Priority && (*head)->priority > newjob->priority)
     {
         newjob->next = *head;
         *head = newjob;
