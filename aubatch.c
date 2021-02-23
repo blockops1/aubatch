@@ -44,14 +44,22 @@ enum Policy currentPolicy;
 //int jobYime = 0;
 pthread_mutex_t jobqueue_mutex;
 
-void *tSchedule(void *);
-// declare function to put a job in the queue at correct place
-int schedule(struct Job*, enum Policy);
+void *tBatchSchedule(void *);
+void *tRunningSchedule(void *);
+// declare function to put a job in the queue at correct place for batches
+// change job at head of job queue
+int batchSchedule(struct Job*, enum Policy); 
+// declare function to put a job in the queue at correct place while running
+// do not change job at head of job queue
+int runningSchedule(struct Job*, enum Policy);
 // declare function to pull a job off head of queue and run it
 int dispatch();
-int reSortJobs(enum Policy);
-int reSortedInsert(struct Job **,struct Job *, enum Policy);
-int sortedJobInsert(struct Job *, enum Policy);
+int batchReSortJobs(enum Policy);
+int batchReSortedInsert(struct Job **,struct Job *, enum Policy);
+int runningReSortJobs(enum Policy);
+int runningReSortedInsert(struct Job **,struct Job *, enum Policy);
+int batchSortedJobInsert(struct Job *, enum Policy);
+int runningSortedJobInsert(struct Job *, enum Policy);
 int printQueue(); 
 
 int main(int argc, char *argv[])
@@ -105,7 +113,7 @@ int main(int argc, char *argv[])
     struct tParameter schedule_param1 = {newjob, policy};
     struct tParameter* schedule_param1_ptr1 = &schedule_param1;
 
-    if (pthread_create(&schedule_tid1, NULL, tSchedule, (void *)schedule_param1_ptr1)){
+    if (pthread_create(&schedule_tid1, NULL, tBatchSchedule, (void *)schedule_param1_ptr1)){
         perror("ERROR creating scheduling thread.\n");
     } 
     void* returnval;
@@ -128,24 +136,25 @@ int main(int argc, char *argv[])
     struct tParameter schedule_param2 = {newjob, policy};
     struct tParameter* schedule_param2_ptr1 = &schedule_param2;
 
-    if (pthread_create(&schedule_tid2, NULL, tSchedule, (void *)schedule_param2_ptr1)){
+    if (pthread_create(&schedule_tid2, NULL, tBatchSchedule, (void *)schedule_param2_ptr1)){
         perror("ERROR creating scheduling thread.\n");
     } 
-
-    
+    pthread_join(schedule_tid1, &returnval);
+    pthread_join(schedule_tid2, &returnval);
+    printQueue(); 
     //schedule(&head, newjob, policy);
     newjob = &job3;
+    policy = SJF;
     
     //call scheduler as a pthread job
     pthread_t schedule_tid3;
     struct tParameter schedule_param3 = {newjob, policy};
     struct tParameter* schedule_param3_ptr1 = &schedule_param3;
 
-    if (pthread_create(&schedule_tid3, NULL, tSchedule, (void *)schedule_param3_ptr1)){
+    if (pthread_create(&schedule_tid3, NULL, tBatchSchedule, (void *)schedule_param3_ptr1)){
         perror("ERROR creating scheduling thread.\n");
     } 
-    pthread_join(schedule_tid1, &returnval);
-    pthread_join(schedule_tid2, &returnval);
+
     pthread_join(schedule_tid3, &returnval);
 
     //schedule(&head, newjob, policy);
@@ -160,17 +169,28 @@ int main(int argc, char *argv[])
     pthread_mutex_destroy(&jobqueue_mutex); 
 }
 
-void *tSchedule(void * received_parameters) {
+void *tBatchSchedule(void * received_parameters) {
     struct tParameter* thread_parameter = (struct tParameter*) received_parameters;
     struct Job* newjob = (struct Job*)thread_parameter->newjob;
     enum Policy policy = thread_parameter->policy;
     pthread_mutex_lock(&jobqueue_mutex);
-    schedule(newjob, policy);
+    batchSchedule(newjob, policy);
     pthread_mutex_unlock(&jobqueue_mutex);
     return 0;
 }
 
-int schedule(struct Job* newjob, enum Policy policy)
+
+void *tRunningSchedule(void * received_parameters) {
+    struct tParameter* thread_parameter = (struct tParameter*) received_parameters;
+    struct Job* newjob = (struct Job*)thread_parameter->newjob;
+    enum Policy policy = thread_parameter->policy;
+    pthread_mutex_lock(&jobqueue_mutex);
+    runningSchedule(newjob, policy);
+    pthread_mutex_unlock(&jobqueue_mutex);
+    return 0;
+}
+
+int batchSchedule(struct Job* newjob, enum Policy policy)
 {
     // define scheduler function to put a job at the correct place in queue
     // head of queue is next job to run. This is for batch jobs
@@ -186,18 +206,51 @@ int schedule(struct Job* newjob, enum Policy policy)
         return 0;
     }
 
-    // if policy change, traverse queue and arrange all jobs properly. Do not move
-    // the current job at head of queue
+    // if policy change, traverse queue and arrange all jobs properly. 
+    // This is for batch scheduling, and changes job at head of queue
     if (policy != currentPolicy) {
-        reSortJobs(policy);
+        batchReSortJobs(policy);
         #ifdef DEBUG
-            printf("policy change, time to sort\n");
-        #endif // DEBUG        
+            printf("policy change, time to sort, current job id: %d\n", head->id);
+        #endif // DEBUG   
+        currentPolicy = policy;     
     }
-    // call an insert function, send it the job and policy
-    sortedJobInsert(newjob, policy);
+    // call an insert function, send it the job and policy. can change head of queue
+    batchSortedJobInsert(newjob, policy);
     return 0;
 }
+
+
+int runningSchedule(struct Job* newjob, enum Policy policy)
+{
+    // define scheduler function to put a job at the correct place in queue
+    // head of queue is next job to run. This is for batch jobs
+    // scheduler is called whenever a job is created
+    //SJF - find shortest job, pull out of queue
+    //Priority - find highest firstest job, pull out of queue, need previous
+    // traverse queue until shortest job found
+    //if empty queue put first at head
+    
+    if (head == NULL)
+    {
+        head = newjob;
+        return 0;
+    }
+
+    // if policy change, traverse queue and arrange all jobs properly. 
+    // This is for batch scheduling, and does not change job at head of queue
+    if (policy != currentPolicy) {
+        runningReSortJobs(policy);
+        #ifdef DEBUG
+            printf("policy change, time to sort, current job id: %d\n", head->id);
+        #endif // DEBUG   
+        currentPolicy = policy;     
+    }
+    // call an insert function, send it the job and policy. do not change running job
+    runningSortedJobInsert(newjob, policy);
+    return 0;
+}
+
 
 // define dispatcher function to pull a job off the head of queue and run it
 int dispatch()
@@ -209,7 +262,108 @@ int dispatch()
 }
 
 
-int reSortJobs(enum Policy policy)
+int batchReSortJobs(enum Policy policy)
+{
+    // this is insertion sort and changes job at head of queue
+    // Initialize sorted linked list. this uses global head queue
+    struct Job *sorted = NULL;
+
+    // Traverse the given linked list and insert every
+    // node to sorted
+    struct Job *current = head;
+    while (current != NULL)
+    {
+        // Store next for next iteration
+        struct Job *next = current->next;
+        // insert current in sorted linked list
+        batchReSortedInsert(&sorted, current, policy);
+        // if next is null traverse sorted list to end, change tail next to NULL
+        if (next == NULL) {
+            while (current != current->next) {
+                current = current->next;
+            }
+            current->next = NULL;
+        }
+        // Update current
+        current = next;
+    }
+    // Update head_ref to point to sorted linked list
+    head = sorted;
+    return 0;
+}
+
+
+/* function to insert a newjob in a list when sorting. Note that this 
+  function expects a pointer to head as this can modify the 
+  head of the input linked list (similar to push())*/
+int batchReSortedInsert(struct Job** sorted,struct Job* newjob, enum Policy policy)
+{
+    struct Job* current;
+    /* Special case for the head end */
+    if (*sorted == NULL)
+    {
+        *sorted = newjob;
+        return 0;
+    }
+
+
+    if (policy == FCFS && (*sorted)->arrival_time > newjob->arrival_time)
+    {
+        newjob->next = *sorted;
+        *sorted = newjob;
+        return 0;
+    }
+        if (policy == SJF && (*sorted)->cpu_time > newjob->cpu_time)
+    {
+        newjob->next = head;
+        head = newjob;
+        return 0;
+    }
+        if (policy == Priority && (*sorted)->priority > newjob->priority)
+    {
+        newjob->next = *sorted;
+        *sorted = newjob;
+        return 0;
+    }
+
+    
+    /* Locate the node before the point of insertion */
+    current = *sorted;
+    if (policy == FCFS)
+    {
+        while (current->next != NULL &&
+               current->next->arrival_time < newjob->arrival_time)
+        {
+            current = current->next;
+        }
+        newjob->next = current->next;
+        current->next = newjob;
+    }
+        if (policy == SJF)
+    {
+        while (current->next != NULL &&
+               current->next->cpu_time < newjob->cpu_time)
+        {
+            current = current->next;
+        }
+        newjob->next = current->next;
+        current->next = newjob;
+    }
+        if (policy == Priority)
+    {
+        while (current->next != NULL &&
+               current->next->priority < newjob->priority)
+        {
+            current = current->next;
+        }
+        newjob->next = current->next;
+        current->next = newjob;
+    }
+    return 0;
+}
+
+
+int runningReSortJobs(enum Policy policy)
 {
     // this is insertion sort but does not change job at head of queue
     // Initialize sorted linked list. this uses global head queue
@@ -223,7 +377,7 @@ int reSortJobs(enum Policy policy)
         // Store next for next iteration
         struct Job *next = current->next;
         // insert current in sorted linked list
-        reSortedInsert(&sorted, current, policy);
+        runningReSortedInsert(&sorted, current, policy);
         // if next is null traverse sorted list to end, change tail next to NULL
         if (next == NULL) {
             while (current != current->next) {
@@ -242,7 +396,7 @@ int reSortJobs(enum Policy policy)
 /* function to insert a newjob in a list when sorting. Note that this 
   function expects a pointer to head as this can modify the 
   head of the input linked list (similar to push())*/
-int reSortedInsert(struct Job** sorted,struct Job* newjob, enum Policy policy)
+int runningReSortedInsert(struct Job** sorted,struct Job* newjob, enum Policy policy)
 {
     struct Job* current;
     /* Special case for the head end */
@@ -287,10 +441,10 @@ int reSortedInsert(struct Job** sorted,struct Job* newjob, enum Policy policy)
     return 0;
 }
 
-/* function to insert a newjob in a list when sorting for realtime. This uses
+/* function to insert a newjob in a list when sorting for batches. This uses
  * the job queue with global variable head
  */
-int sortedJobInsert(struct Job* newjob, enum Policy policy)
+int batchSortedJobInsert(struct Job* newjob, enum Policy policy)
 {
     struct Job* current;
     /* Special case for the head end */
@@ -315,6 +469,55 @@ int sortedJobInsert(struct Job* newjob, enum Policy policy)
         if (policy == Priority && (head)->priority > newjob->priority)
     {
         newjob->next = head;
+        head = newjob;
+        return 0;
+    }
+
+    /* Locate the node before the point of insertion */
+    current = head;
+    if (policy == FCFS)
+    {
+        while (current->next != NULL &&
+               current->next->arrival_time < newjob->arrival_time)
+        {
+            current = current->next;
+        }
+        newjob->next = current->next;
+        current->next = newjob;
+    }
+        if (policy == SJF)
+    {
+        while (current->next != NULL &&
+               current->next->cpu_time < newjob->cpu_time)
+        {
+            current = current->next;
+        }
+        newjob->next = current->next;
+        current->next = newjob;
+    }
+        if (policy == Priority)
+    {
+        while (current->next != NULL &&
+               current->next->priority < newjob->priority)
+        {
+            current = current->next;
+        }
+        newjob->next = current->next;
+        current->next = newjob;
+    }
+    return 0;
+}
+
+
+/* function to insert a newjob in a list when sorting for realtime. This uses
+ * the job queue with global variable head. It does not insert a job at the head
+ */
+int runningSortedJobInsert(struct Job* newjob, enum Policy policy)
+{
+    struct Job* current;
+    /* Special case for the head end */
+    if (head == NULL)
+    {
         head = newjob;
         return 0;
     }
