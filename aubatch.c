@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
+#include <pthread.h>
 
 
 // define constants for initializating data
@@ -32,8 +33,16 @@ enum Policy
     Priority = 2
 };
 
+//structure for calling scheduler thread
+struct tParameter {
+    struct Job* head;
+    struct Job* newjob;
+    enum Policy policy;
+};
+
 enum Policy currentPolicy;
 
+void *tSchedule(void *);
 // declare function to put a job in the queue at correct place
 int schedule(struct Job**, struct Job*, enum Policy);
 // declare function to pull a job off head of queue and run it
@@ -48,9 +57,9 @@ int main(int argc, char *argv[])
     struct Job *head = NULL;
     //struct Job* tail = NULL;
     struct Job *newjob = NULL;
-    enum Policy policy = SJF;
+    enum Policy policy = FCFS;
     currentPolicy = policy;
-    int success;
+    //int success;
     //create the first job
     struct Job job1 = {0};
     job1.id = 1;
@@ -79,33 +88,74 @@ int main(int argc, char *argv[])
     job3.next = NULL;
 
 
+
     //current pointer at first job
-    #ifdef DEBUG
-        printf("First ID: %d\n", job1.id);
-    #endif // DEBUG
     newjob = &job1;
-    #ifdef DEBUG
-        printf("NewJob ID: %d\n", newjob->id);
-    #endif // DEBUG
+
+    //call scheduler as a pthread job
+    pthread_t schedule_tid1;
+    struct tParameter schedule_param1 = {head, newjob, policy};
+    struct tParameter* schedule_param1_ptr1 = &schedule_param1;
+
+    if (pthread_create(&schedule_tid1, NULL, tSchedule, (void *)schedule_param1_ptr1)){
+        perror("ERROR creating scheduling thread.\n");
+    } 
+    void* returnval;
+    pthread_join(schedule_tid1, &returnval);
+    head = (struct Job *)returnval;
+
     // call function for the scheduler thread - this puts jobs in the job queue
-    success = schedule(&head, newjob, policy);
-    printf("success value %d\n", success);
-    #ifdef DEBUG
+    //success = schedule(&head, newjob, policy);
+    //printf("success value %d\n", success);
+    /*#ifdef DEBUG
         if (head == NULL) printf("head is null\n");
         if (newjob == NULL) printf("newjob is null\n");
         printf("made it back from schedule\n");
         //printf("function main head id: %d\n", head->id);
         printf("function main newjob id: %d\n", newjob->id);
-    #endif // DEBUG
+    #endif // DEBUG*/
     newjob = &job2;
-    schedule(&head, newjob, policy);
+
+    //call scheduler as a pthread job
+    pthread_t schedule_tid2;
+    struct tParameter schedule_param2 = {head, newjob, policy};
+    struct tParameter* schedule_param2_ptr1 = &schedule_param2;
+
+    if (pthread_create(&schedule_tid2, NULL, tSchedule, (void *)schedule_param2_ptr1)){
+        perror("ERROR creating scheduling thread.\n");
+    } 
+    pthread_join(schedule_tid2, &returnval);
+    head = (struct Job *)returnval;
+    
+    //schedule(&head, newjob, policy);
     newjob = &job3;
-    schedule(&head, newjob, policy);
+    
+    //call scheduler as a pthread job
+    pthread_t schedule_tid3;
+    struct tParameter schedule_param3 = {head, newjob, policy};
+    struct tParameter* schedule_param3_ptr1 = &schedule_param3;
+
+    if (pthread_create(&schedule_tid3, NULL, tSchedule, (void *)schedule_param3_ptr1)){
+        perror("ERROR creating scheduling thread.\n");
+    } 
+    pthread_join(schedule_tid3, &returnval);
+    head = (struct Job *)returnval;
+
+    //schedule(&head, newjob, policy);
 
     printQueue(&head); 
 
     // call function for the dispatcher thread - this takes jobs out of the job queue
     //dispatch(head);
+}
+
+void *tSchedule(void * received_parameters) {
+    struct tParameter* thread_parameter = (struct tParameter*) received_parameters;
+    struct Job* head = (struct Job*)thread_parameter->head;
+    struct Job* newjob = (struct Job*)thread_parameter->newjob;
+    enum Policy policy = thread_parameter->policy;
+    schedule(&head, newjob, policy);
+    return head;
 }
 
 int schedule(struct Job** head, struct Job* newjob, enum Policy policy)
@@ -120,13 +170,6 @@ int schedule(struct Job** head, struct Job* newjob, enum Policy policy)
     if (*head == NULL)
     {
         *head = newjob;
-        #ifdef DEBUG
-            printf("schedule: head was null, assign and return\n");
-            if (*head == NULL) printf("head is null");
-            if (newjob == NULL) printf("newjob is null");
-            //printf("schedule: head id: %d\n", **head->id);
-            printf("schedule: newjob id: %d\n", newjob->id);
-        #endif // DEBUG
         return 0;
     }
     // if policy change, traverse queue and arrange all jobs properly
@@ -137,9 +180,6 @@ int schedule(struct Job** head, struct Job* newjob, enum Policy policy)
         #endif // DEBUG        
     }
     // call a general insert function, send it the queue and job
-    #ifdef DEBUG
-            printf("calling sortedInsert\n");
-    #endif // DEBUG 
     sortedInsert(head, newjob, policy);
     return 0;
 }
@@ -251,6 +291,7 @@ int sortedInsert(struct Job** head, struct Job* newjob, enum Policy policy)
 
 int printQueue(struct Job** head) {
     struct Job* current = *head;
+    printf("Printing queue, current schedule is %d\n", currentPolicy);
     while (current != NULL)
     {
         printf("ID: %d\n", current->id);
