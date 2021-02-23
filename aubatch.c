@@ -49,6 +49,7 @@ int schedule(struct Job*, enum Policy);
 int dispatch();
 int sortJobs(enum Policy);
 int sortedInsert(struct Job **,struct Job *, enum Policy);
+int sortedJobInsert(struct Job *, enum Policy);
 int printQueue(); 
 
 int main(int argc, char *argv[])
@@ -57,7 +58,7 @@ int main(int argc, char *argv[])
     head = NULL;
     //struct Job* tail = NULL;
     struct Job *newjob = NULL;
-    enum Policy policy = FCFS;
+    enum Policy policy = Priority;
     currentPolicy = policy;
     //int success;
     //create the first job
@@ -176,9 +177,8 @@ int schedule(struct Job* newjob, enum Policy policy)
             printf("policy change, time to sort\n");
         #endif // DEBUG        
     }
-    // call a general insert function, send it the queue and job
-    struct Job* sorted = head;
-    sortedInsert(&sorted, newjob, policy);
+    // call an insert function, send it the job and policy
+    sortedJobInsert(newjob, policy);
     return 0;
 }
 
@@ -252,6 +252,54 @@ int sortedInsert(struct Job** sorted,struct Job* newjob, enum Policy policy)
 
     /* Locate the node before the point of insertion */
     current = *sorted;
+    if (policy == FCFS)
+    {
+        while (current->next != NULL &&
+               current->next->arrival_time < newjob->arrival_time)
+        {
+            current = current->next;
+        }
+        newjob->next = current->next;
+        current->next = newjob;
+    }
+        if (policy == SJF)
+    {
+        while (current->next != NULL &&
+               current->next->cpu_time < newjob->cpu_time)
+        {
+            current = current->next;
+        }
+        newjob->next = current->next;
+        current->next = newjob;
+    }
+        if (policy == Priority)
+    {
+        while (current->next != NULL &&
+               current->next->priority < newjob->priority)
+        {
+            current = current->next;
+        }
+        newjob->next = current->next;
+        current->next = newjob;
+    }
+    return 0;
+}
+
+/* function to insert a newjob in a list when sorting. This does not 
+ * modify the job at the head of the list
+ */
+int sortedJobInsert(struct Job* newjob, enum Policy policy)
+{
+    struct Job* current;
+    /* Special case for the head end */
+    if (head == NULL)
+    {
+        head = newjob;
+        return 0;
+    }
+
+    /* Locate the node before the point of insertion */
+    current = head;
     if (policy == FCFS)
     {
         while (current->next != NULL &&
