@@ -41,14 +41,16 @@ struct tParameter {
 
 struct Job* head;
 enum Policy currentPolicy;
+//int jobYime = 0;
+pthread_mutex_t jobqueue_mutex;
 
 void *tSchedule(void *);
 // declare function to put a job in the queue at correct place
 int schedule(struct Job*, enum Policy);
 // declare function to pull a job off head of queue and run it
 int dispatch();
-int sortJobs(enum Policy);
-int sortedInsert(struct Job **,struct Job *, enum Policy);
+int reSortJobs(enum Policy);
+int reSortedInsert(struct Job **,struct Job *, enum Policy);
 int sortedJobInsert(struct Job *, enum Policy);
 int printQueue(); 
 
@@ -58,8 +60,13 @@ int main(int argc, char *argv[])
     head = NULL;
     //struct Job* tail = NULL;
     struct Job *newjob = NULL;
-    enum Policy policy = Priority;
+    enum Policy policy = FCFS;
     currentPolicy = policy;
+
+    if (pthread_mutex_init(&jobqueue_mutex, NULL) != 0) { 
+        printf("\n mutex init has failed\n"); 
+        return 1; 
+    }
     //int success;
     //create the first job
     struct Job job1 = {0};
@@ -102,8 +109,7 @@ int main(int argc, char *argv[])
         perror("ERROR creating scheduling thread.\n");
     } 
     void* returnval;
-    pthread_join(schedule_tid1, &returnval);
-    
+      
 
     // call function for the scheduler thread - this puts jobs in the job queue
     //success = schedule(&head, newjob, policy);
@@ -125,7 +131,7 @@ int main(int argc, char *argv[])
     if (pthread_create(&schedule_tid2, NULL, tSchedule, (void *)schedule_param2_ptr1)){
         perror("ERROR creating scheduling thread.\n");
     } 
-    pthread_join(schedule_tid2, &returnval);
+
     
     //schedule(&head, newjob, policy);
     newjob = &job3;
@@ -138,41 +144,52 @@ int main(int argc, char *argv[])
     if (pthread_create(&schedule_tid3, NULL, tSchedule, (void *)schedule_param3_ptr1)){
         perror("ERROR creating scheduling thread.\n");
     } 
+    pthread_join(schedule_tid1, &returnval);
+    pthread_join(schedule_tid2, &returnval);
     pthread_join(schedule_tid3, &returnval);
 
     //schedule(&head, newjob, policy);
 
     printQueue(); 
-
+    //reSortJobs(SJF);
+    //printQueue(); 
+    //reSortJobs(Priority);
+    //printQueue(); 
     // call function for the dispatcher thread - this takes jobs out of the job queue
     //dispatch(head);
+    pthread_mutex_destroy(&jobqueue_mutex); 
 }
 
 void *tSchedule(void * received_parameters) {
     struct tParameter* thread_parameter = (struct tParameter*) received_parameters;
     struct Job* newjob = (struct Job*)thread_parameter->newjob;
     enum Policy policy = thread_parameter->policy;
+    pthread_mutex_lock(&jobqueue_mutex);
     schedule(newjob, policy);
+    pthread_mutex_unlock(&jobqueue_mutex);
     return 0;
 }
 
 int schedule(struct Job* newjob, enum Policy policy)
 {
     // define scheduler function to put a job at the correct place in queue
-    // head of queue is next job to run
+    // head of queue is next job to run. This is for batch jobs
     // scheduler is called whenever a job is created
     //SJF - find shortest job, pull out of queue
     //Priority - find highest firstest job, pull out of queue, need previous
     // traverse queue until shortest job found
     //if empty queue put first at head
+    
     if (head == NULL)
     {
         head = newjob;
         return 0;
     }
-    // if policy change, traverse queue and arrange all jobs properly
+
+    // if policy change, traverse queue and arrange all jobs properly. Do not move
+    // the current job at head of queue
     if (policy != currentPolicy) {
-        sortJobs(policy);
+        reSortJobs(policy);
         #ifdef DEBUG
             printf("policy change, time to sort\n");
         #endif // DEBUG        
@@ -192,10 +209,10 @@ int dispatch()
 }
 
 
-int sortJobs(enum Policy policy)
+int reSortJobs(enum Policy policy)
 {
-    // this is insertion sort
-    // Initialize sorted linked list
+    // this is insertion sort but does not change job at head of queue
+    // Initialize sorted linked list. this uses global head queue
     struct Job *sorted = NULL;
 
     // Traverse the given linked list and insert every
@@ -205,14 +222,18 @@ int sortJobs(enum Policy policy)
     {
         // Store next for next iteration
         struct Job *next = current->next;
-
         // insert current in sorted linked list
-        sortedInsert(&sorted, current, policy);
-
+        reSortedInsert(&sorted, current, policy);
+        // if next is null traverse sorted list to end, change tail next to NULL
+        if (next == NULL) {
+            while (current != current->next) {
+                current = current->next;
+            }
+            current->next = NULL;
+        }
         // Update current
         current = next;
     }
-
     // Update head_ref to point to sorted linked list
     head = sorted;
     return 0;
@@ -221,7 +242,7 @@ int sortJobs(enum Policy policy)
 /* function to insert a newjob in a list when sorting. Note that this 
   function expects a pointer to head as this can modify the 
   head of the input linked list (similar to push())*/
-int sortedInsert(struct Job** sorted,struct Job* newjob, enum Policy policy)
+int reSortedInsert(struct Job** sorted,struct Job* newjob, enum Policy policy)
 {
     struct Job* current;
     /* Special case for the head end */
@@ -230,26 +251,7 @@ int sortedInsert(struct Job** sorted,struct Job* newjob, enum Policy policy)
         *sorted = newjob;
         return 0;
     }
-    if (policy == FCFS && (*sorted)->arrival_time > newjob->arrival_time)
-    {
-        newjob->next = *sorted;
-        *sorted = newjob;
-        return 0;
-    }
-        if (policy == SJF && (*sorted)->cpu_time > newjob->cpu_time)
-    {
-        newjob->next = *sorted;
-        *sorted = newjob;
-        return 0;
-    }
-        if (policy == Priority && (*sorted)->priority > newjob->priority)
-    {
-        newjob->next = *sorted;
-        *sorted = newjob;
-        return 0;
-    }
-
-
+    
     /* Locate the node before the point of insertion */
     current = *sorted;
     if (policy == FCFS)
@@ -285,8 +287,8 @@ int sortedInsert(struct Job** sorted,struct Job* newjob, enum Policy policy)
     return 0;
 }
 
-/* function to insert a newjob in a list when sorting. This does not 
- * modify the job at the head of the list
+/* function to insert a newjob in a list when sorting for realtime. This uses
+ * the job queue with global variable head
  */
 int sortedJobInsert(struct Job* newjob, enum Policy policy)
 {
@@ -294,6 +296,25 @@ int sortedJobInsert(struct Job* newjob, enum Policy policy)
     /* Special case for the head end */
     if (head == NULL)
     {
+        head = newjob;
+        return 0;
+    }
+
+    if (policy == FCFS && (head)->arrival_time > newjob->arrival_time)
+    {
+        newjob->next = head;
+        head = newjob;
+        return 0;
+    }
+        if (policy == SJF && (head)->cpu_time > newjob->cpu_time)
+    {
+        newjob->next = head;
+        head = newjob;
+        return 0;
+    }
+        if (policy == Priority && (head)->priority > newjob->priority)
+    {
+        newjob->next = head;
         head = newjob;
         return 0;
     }
@@ -335,8 +356,9 @@ int sortedJobInsert(struct Job* newjob, enum Policy policy)
 
 int printQueue() {
     struct Job* current = head;
-    printf("Printing queue, current schedule is %d\n", currentPolicy);
-    while (current != NULL)
+    int count = 0;
+    printf("Printing queue, current policy is %d\n", currentPolicy);
+    while (current != NULL && count < 3)
     {
         printf("ID: %d\n", current->id);
         printf("Name: %s\n", current->name);
@@ -344,9 +366,15 @@ int printQueue() {
         printf("CPU time: %d\n", current->cpu_time);
         printf("Arrival Time: %d\n", current->arrival_time);
         printf("Starting time: %d\n", current->starting_time);
-        printf("Finish Time: %d\n\n", current->finish_time);
+        printf("Finish Time: %d\n", current->finish_time);
+        if (current->next != NULL) {
+        printf("Next Job: %d\n\n", current->next->id);
+        } else {
+            printf("Next Job: NULL\n\n");
+        }
         // Update current
         current = current->next;
+        count++;
     }
     return 0;
 }
