@@ -1,7 +1,6 @@
 //aubatch_utilities.h
 #ifndef AUBATCH_UTILITIES_H
 #define AUBATCH_UTILITIES_H
-#include "aubatch.h"
 #include "aubatch_scheduler.h"
 
 int submitJob(struct Job*);

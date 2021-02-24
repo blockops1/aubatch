@@ -1,14 +1,20 @@
 // aubatch_scheduler.c
 
-#include "aubatch_scheduler.h"
-
-
 #include <sys/types.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
 #include <pthread.h>
+#include "aubatch_scheduler.h"
+
+int policyChange = 1;
+int submitted_buffer_size = 3;
+int submitted_size = 0;
+int scheduled_buffer_size = 3;
+int scheduled_size = 0;
+int hardquit = 1;
+int softquit = 1;
 
 // function definitions
 

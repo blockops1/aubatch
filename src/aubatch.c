@@ -4,7 +4,6 @@
  * Date: 18 Feb 2021
  */
 
-#include "aubatch.h"
 
 #include <sys/types.h>
 #include <stdlib.h>
@@ -13,14 +12,9 @@
 #include <assert.h>
 #include <pthread.h>
 #include <unistd.h>
+#include "aubatch.h"
 
-int policyChange = 1;
-int submitted_buffer_size = 3;
-int submitted_size = 0;
-int scheduled_buffer_size = 3;
-int scheduled_size = 0;
-int hardquit = 1;
-int softquit = 1;
+
 
 int main(int argc, char *argv[])
 {

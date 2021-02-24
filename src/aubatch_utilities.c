@@ -1,6 +1,4 @@
 
-#include "aubatch_utilities.h"
-
 #include <sys/types.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -8,7 +6,7 @@
 #include <assert.h>
 #include <pthread.h>
 
-// global variables
+#include "aubatch_utilities.h"
 
 
 

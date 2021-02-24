@@ -1,30 +1,12 @@
 // aubatch_scheduler.h
 #ifndef AUBATCH_SCHEDULER_H
 #define AUBATCH_SCHEDULER_H
-#include "aubatch_utilities.h"
-#include "aubatch.h"
+
 struct Job;
 enum Policy;
 struct tParameter;
 
-// global variables
-extern struct Job *head_job_submitted;
-extern struct Job *head_job_scheduled;
-extern struct Job *head_job_completed;
-extern enum Policy currentPolicy;
-extern int policyChange;
-extern pthread_mutex_t submitted_mutex;
-extern pthread_cond_t submitted_full;
-extern pthread_cond_t submitted_empty;
-extern int submitted_buffer_size;
-extern int submitted_size;
-extern pthread_mutex_t scheduled_mutex;
-extern pthread_cond_t scheduled_empty;
-extern pthread_cond_t scheduled_full;
-extern int scheduled_buffer_size;
-extern int scheduled_size;
-extern int hardquit;
-extern int softquit;
+
 
 
 void *tRunningSchedule(void *);
@@ -60,6 +42,24 @@ struct tParameter {
     enum Policy policy;
 };
 
+// global variables
+struct Job *head_job_submitted;
+struct Job *head_job_scheduled;
+struct Job *head_job_completed;
+enum Policy currentPolicy;
+int policyChange;
+pthread_mutex_t submitted_mutex;
+pthread_cond_t submitted_full;
+pthread_cond_t submitted_empty;
+int submitted_buffer_size;
+int submitted_size;
+pthread_mutex_t scheduled_mutex;
+pthread_cond_t scheduled_empty;
+pthread_cond_t scheduled_full;
+int scheduled_buffer_size;
+int scheduled_size;
+int hardquit;
+int softquit;
 
 
 #endif 
