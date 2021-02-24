@@ -1,24 +1,37 @@
 // aubatch_scheduler.h
 #ifndef AUBATCH_SCHEDULER_H
 #define AUBATCH_SCHEDULER_H
+#include "aubatch_utilities.h"
+#include "aubatch.h"
 struct Job;
 enum Policy;
 struct tParameter;
 
-void *tBatchSchedule(void *);
+// global variables
+extern struct Job *head_job_submitted;
+extern struct Job *head_job_scheduled;
+extern struct Job *head_job_completed;
+extern enum Policy currentPolicy;
+extern int policyChange;
+extern pthread_mutex_t submitted_mutex;
+extern pthread_cond_t submitted_full;
+extern pthread_cond_t submitted_empty;
+extern int submitted_buffer_size;
+extern int submitted_size;
+extern pthread_mutex_t scheduled_mutex;
+extern pthread_cond_t scheduled_empty;
+extern pthread_cond_t scheduled_full;
+extern int scheduled_buffer_size;
+extern int scheduled_size;
+extern int hardquit;
+extern int softquit;
+
+
 void *tRunningSchedule(void *);
-// declare function to put a job in the queue at correct place for batches
-// change job at head of job queue
-int batchSchedule(struct Job*, enum Policy); 
-// declare function to put a job in the queue at correct place while running
-// do not change job at head of job queue
-int runningSchedule(struct Job*, enum Policy);
-// declare function to pull a job off head of queue and run it
-int batchReSortJobs(enum Policy);
-int batchReSortedInsert(struct Job **,struct Job *, enum Policy);
+int submitSchedule(struct Job*);
+int runningSchedule(struct Job*);
 int runningReSortJobs(enum Policy);
 int runningReSortedInsert(struct Job **,struct Job *, enum Policy);
-int batchSortedJobInsert(struct Job *, enum Policy);
 int runningSortedJobInsert(struct Job *, enum Policy);
 
 

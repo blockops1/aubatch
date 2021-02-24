@@ -1,4 +1,4 @@
-#include "aubatch_scheduler.h"
+
 #include "aubatch_utilities.h"
 
 #include <sys/types.h>
@@ -10,23 +10,48 @@
 
 // global variables
 
-struct Job* head;
-enum Policy currentPolicy;
-pthread_mutex_t jobqueue_mutex;
 
+
+int submitJob(struct Job* newjob)
+{
+    struct Job* current = NULL;
+    // put new job in submit queue
+    pthread_mutex_lock(&submitted_mutex);
+    if (submitted_size >= submitted_buffer_size)
+    {
+        printf("submitted queue is at max limit");
+        pthread_cond_wait(&submitted_full, &submitted_mutex);
+    }
+    if (head_job_submitted == NULL)
+    {
+        head_job_submitted = newjob;
+        submitted_size++;
+    } else {
+        current = head_job_submitted;
+        //traverse to tail and add job
+        while(current->next != NULL) {
+            current = current->next;
+        }
+        current->next = newjob;
+        submitted_size++;
+    }
+    pthread_cond_signal(&submitted_empty);
+    pthread_mutex_unlock(&submitted_mutex);
+    return 0;
+}
 
 // define dispatcher function to pull a job off the head of queue and run it
 int dispatch()
 {
     // dispatcher runs until finished. Keeps a clock and counts every second?
-    if (head == NULL)
+    if (head_job_scheduled == NULL)
         return 1;
     return 0;
 }
 
-
-int printQueue() {
-    struct Job* current = head;
+int printQueue(struct Job *head)
+{
+    struct Job *current = head;
     int count = 0;
     printf("Printing queue, current policy is %d\n", currentPolicy);
     while (current != NULL && count < 3)
@@ -38,9 +63,12 @@ int printQueue() {
         printf("Arrival Time: %d\n", current->arrival_time);
         printf("Starting time: %d\n", current->starting_time);
         printf("Finish Time: %d\n", current->finish_time);
-        if (current->next != NULL) {
-        printf("Next Job: %d\n\n", current->next->id);
-        } else {
+        if (current->next != NULL)
+        {
+            printf("Next Job: %d\n\n", current->next->id);
+        }
+        else
+        {
             printf("Next Job: NULL\n\n");
         }
         // Update current
