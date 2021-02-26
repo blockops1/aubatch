@@ -30,6 +30,8 @@ int main(int argc, char *argv[])
     submitted_size = 0;
     scheduled_buffer_size = 3;
     scheduled_size = 0;
+    completed_buffer_size = 3;
+    completed_size = 0;
     hardquit = 1;
     softquit = 1;
 
@@ -70,6 +72,10 @@ int main(int argc, char *argv[])
         printf("\n mutex init has failed\n"); 
         return 1; 
     }
+    if (pthread_mutex_init(&completed_mutex, NULL) != 0) { 
+        printf("\n mutex init has failed\n"); 
+        return 1; 
+    }
 
     //call scheduler as a pthread job - this will keep running until told to quit
     pthread_t schedule_tid1;
@@ -77,64 +83,59 @@ int main(int argc, char *argv[])
     if (pthread_create(&schedule_tid1, NULL, tRunningSchedule, schedule_param1_ptr1)){
         perror("ERROR creating scheduling thread.\n");
     } 
+
+    //call dispatcher as a pthread job - this will keep running until told to quit
+    pthread_t dispatch_tid1;
+    void* dispatch_param1_ptr1 = NULL;
+    if (pthread_create(&dispatch_tid1, NULL, tDispatcher, dispatch_param1_ptr1)){
+        perror("ERROR creating dispatching thread.\n");
+    } 
     void* returnval = NULL;
       
 
     //current pointer at first job
     newjob = &job1;
+    pthread_mutex_lock(&submitted_mutex);
     submitJob(newjob);
-    printf("job 1 submitted sleep 3 seconds\n");
-    sleep(1);
+    pthread_cond_signal(&submitted_empty);
     printf("Submitted Queue after job 1:\n");
     printQueue(head_job_submitted); 
+    pthread_mutex_unlock(&submitted_mutex);
 
-    printf("sleep 3 seconds\n");
-    sleep(1);
 
 
     newjob = &job2;
+    pthread_mutex_lock(&submitted_mutex);
     submitJob(newjob);
-    printf("job 2 submitted sleep 3 seconds\n");
-    sleep(1);
-    printf("Submitted Queue:\n");
+    pthread_cond_signal(&submitted_empty);
+    printf("Submitted Queue after job 2:\n");
     printQueue(head_job_submitted); 
-
-    printf("sleep 3 seconds\n");
-    sleep(1);
-
+    pthread_mutex_unlock(&submitted_mutex);
 
     policy = SJF;
     policyChange = 0;
     currentPolicy = policy;
 
-    printf("sleep 3 seconds\n");
-    sleep(1);
-    printf("Scheduled Queue:\n");
-    printQueue(head_job_scheduled); 
-
     newjob = &job3;
+    pthread_mutex_lock(&submitted_mutex);
     submitJob(newjob);
-    printf("sleep 3 seconds\n");
-    sleep(1);
-    printf("Submitted Queue:\n");
+    pthread_cond_signal(&submitted_empty);
+    printf("Submitted Queue after job 3:\n");
     printQueue(head_job_submitted); 
-
-    printf("sleep 3 seconds\n");
-    sleep(1);
-
-
-
+    pthread_mutex_unlock(&submitted_mutex);
 
     printf("sleep 10 seconds\n");
     sleep(10);
 
     //quit the thread
     //pthread_cond_signal(&scheduled_full);
-    //pthread_cond_signal(&submitted_empty);
-    //hardquit = 0;
+    pthread_cond_signal(&submitted_empty);
+    hardquit = 0;
     pthread_join(schedule_tid1, returnval);
     pthread_mutex_destroy(&submitted_mutex); 
     pthread_mutex_destroy(&scheduled_mutex); 
+    printf("Scheduled Queue:\n");
+    printQueue(head_job_scheduled);
 }
 
 /// definitions start

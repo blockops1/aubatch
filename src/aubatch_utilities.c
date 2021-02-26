@@ -8,7 +8,9 @@
 
 #include "aubatch_utilities.h"
 
-
+void *tDispatcher(void* received_parameters){
+    return 0;
+}
 
 int submitJob(struct Job* newjob)
 {

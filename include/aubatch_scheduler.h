@@ -59,6 +59,11 @@ pthread_cond_t scheduled_empty;
 pthread_cond_t scheduled_full;
 int scheduled_buffer_size;
 int scheduled_size;
+pthread_mutex_t completed_mutex;
+pthread_cond_t completed_full;
+pthread_cond_t completed_empty;
+int completed_buffer_size;
+int completed_size;
 int hardquit;
 int softquit;
 

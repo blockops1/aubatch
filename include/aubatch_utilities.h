@@ -4,6 +4,7 @@
 #include "aubatch_scheduler.h"
 
 int submitJob(struct Job*);
+void *tDispatcher(void*);
 int dispatch();
 //int printQueue(); 
 
@@ -23,6 +24,11 @@ extern pthread_cond_t scheduled_empty;
 extern pthread_cond_t scheduled_full;
 extern int scheduled_buffer_size;
 extern int scheduled_size;
+extern pthread_mutex_t completed_mutex;
+extern pthread_cond_t completed_full;
+extern pthread_cond_t completed_empty;
+extern int completed_buffer_size;
+extern int completed_size;
 extern int hardquit;
 extern int softquit;
 
