@@ -9,18 +9,19 @@ struct tParameter;
 
 
 
-void *tRunningSchedule(void *);
-int submitSchedule(struct Job*);
+void *tRunningSchedule(void*);
+int submitSchedule(struct Job**);
 int runningSchedule(struct Job*);
 int runningReSortJobs(enum Policy);
 int runningReSortedInsert(struct Job **,struct Job *, enum Policy);
 int runningSortedJobInsert(struct Job *, enum Policy);
+int printQueue(); 
 
 
 // create a structure to hold job data
 struct Job {
     int id;
-    char *name;
+    char* name;
     int priority; // 0 to 7, with lower numbers being higher priority
     int cpu_time; // this is measured in seconds
     int arrival_time;
@@ -43,9 +44,9 @@ struct tParameter {
 };
 
 // global variables
-struct Job *head_job_submitted;
-struct Job *head_job_scheduled;
-struct Job *head_job_completed;
+struct Job* head_job_submitted;
+struct Job* head_job_scheduled;
+struct Job* head_job_completed;
 enum Policy currentPolicy;
 int policyChange;
 pthread_mutex_t submitted_mutex;

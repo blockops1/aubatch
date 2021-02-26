@@ -14,16 +14,17 @@ int submitJob(struct Job* newjob)
 {
     struct Job* current = NULL;
     // put new job in submit queue
-    pthread_mutex_lock(&submitted_mutex);
+    //pthread_mutex_lock(&submitted_mutex);
     if (submitted_size >= submitted_buffer_size)
     {
-        printf("submitted queue is at max limit");
-        pthread_cond_wait(&submitted_full, &submitted_mutex);
+        printf("submitted queue is at max limit\n");
+        //pthread_cond_wait(&submitted_full, &submitted_mutex);
     }
     if (head_job_submitted == NULL)
     {
         head_job_submitted = newjob;
         submitted_size++;
+        printf("was null, submit queue size: %d\n", submitted_size);
     } else {
         current = head_job_submitted;
         //traverse to tail and add job
@@ -32,9 +33,11 @@ int submitJob(struct Job* newjob)
         }
         current->next = newjob;
         submitted_size++;
+        printf("found tail, submit queue size: %d\n", submitted_size);
     }
-    pthread_cond_signal(&submitted_empty);
-    pthread_mutex_unlock(&submitted_mutex);
+    //printQueue(head_job_submitted); 
+    //pthread_cond_signal(&submitted_empty);
+    //pthread_mutex_unlock(&submitted_mutex);
     return 0;
 }
 
@@ -47,12 +50,12 @@ int dispatch()
     return 0;
 }
 
-int printQueue(struct Job *head)
+int printQueue(struct Job* head)
 {
-    struct Job *current = head;
+    struct Job* current = head;
     int count = 0;
     printf("Printing queue, current policy is %d\n", currentPolicy);
-    while (current != NULL && count < 3)
+    while (current != NULL)
     {
         printf("ID: %d\n", current->id);
         printf("Name: %s\n", current->name);

@@ -5,7 +5,7 @@
 
 int submitJob(struct Job*);
 int dispatch();
-int printQueue(); 
+//int printQueue(); 
 
 // global variables
 extern struct Job *head_job_submitted;

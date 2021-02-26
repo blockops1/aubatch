@@ -1,6 +1,6 @@
 IDIR = ../include
 CC=gcc
-CFLAGS=-Wall -Werror -lpthread -I$(IDIR)
+CFLAGS=-DDEBUG -g -Wall -Werror -lpthread -I$(IDIR)
 
 ODIR=obj
 LDIR =../lib

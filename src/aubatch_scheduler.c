@@ -6,58 +6,78 @@
 #include <string.h>
 #include <assert.h>
 #include <pthread.h>
+#include <unistd.h>
 #include "aubatch_scheduler.h"
 
-int policyChange = 1;
-int submitted_buffer_size = 3;
-int submitted_size = 0;
-int scheduled_buffer_size = 3;
-int scheduled_size = 0;
-int hardquit = 1;
-int softquit = 1;
+
 
 // function definitions
 
 void *tRunningSchedule(void *received_parameters)
 {
+
     // this is a continually running thread. It checks the submitted queue for new jobs
     // and places them in the scheduled queue.
     struct Job* newjob = NULL;
     //enum Policy policy;
+
+    printf("\n\nschedule queue sleep for 10 seconds\n");
+    sleep(10);
+    printf("printing global variables\n");
+    printf("scheduled size %d\n", scheduled_size);
+    printf("scheduled buffer size %d\n", scheduled_buffer_size);
     while (hardquit != 0)
     {
         pthread_mutex_lock(&submitted_mutex);
         if(submitted_size <= 0) {
             //nothing in the submit buffer, just wait
             printf("submit queue is empty");
-            pthread_cond_wait(&submitted_empty, &submitted_mutex);
+            pthread_cond_wait(&submitted_empty, &submitted_mutex); // wait until not empty
         }
-        // read from submit queue and take item at head of queue
-        submitSchedule(newjob);
-        pthread_cond_signal(&submitted_full);
-        pthread_mutex_unlock(&submitted_mutex);     
+        // read from submit queue and get pointer to item at head of queue
 
+        submitSchedule(&newjob);
+        pthread_cond_signal(&submitted_full); //it is not full anymore
+        pthread_mutex_unlock(&submitted_mutex);     
+        //printf("returned from submit shedule\n");
+        //if(newjob == NULL) printf("newjob is NULL");
+        //printf("newjob id: %d",newjob->id);
+        //printQueue(newjob);
         // write to scheduled queue
         pthread_mutex_lock(&scheduled_mutex);
-        if (scheduled_size >= scheduled_buffer_size)
+        if (scheduled_size > scheduled_buffer_size)
         {
             printf("scheduled queue is at max limit");
             pthread_cond_wait(&scheduled_full, &scheduled_mutex);
         }
+        printf("tRunningSchedule: calling the scheduler with newjob id: %d\n", newjob->id);
         runningSchedule(newjob);
-        
+        printf("Scheduled Queue:\n");
+        printQueue(head_job_scheduled); 
         pthread_cond_signal(&scheduled_empty);
         pthread_mutex_unlock(&scheduled_mutex);
     }
     return 0;
 }
 
-int submitSchedule(struct Job* newjob) {
-    // get new job from head of submit queue
-    if (head_job_submitted == NULL) return 1;
-    newjob = head_job_submitted;
-    head_job_submitted = newjob->next;
+int submitSchedule(struct Job** newjob) {
+
+    /*
+     * Rest of your ALL auto variables go here.
+     */
+       // get new job from head of submit queue
+    if (head_job_submitted == NULL) return 1; //tried to get a job when none available
+    //printf("submitSchedule: head_job_submitted id: %d\n", head_job_submitted->id);
+    *newjob = head_job_submitted;
+    //printf("submitSchedule: new_job id: %d\n", (*newjob)->id);
+    head_job_submitted = (*newjob)->next;
+    (*newjob)->next = NULL;
+    //printf("submitSchedule: head_job_submitted id: %d\n", head_job_submitted->id);
     submitted_size--;
+    //printf("submitSchedule: submit queue size: %d\n\nprinting submit queue:\n", submitted_size);
+    //printQueue(head_job_submitted); 
+    //printf("submitSchedule: printing newjob\n");
+    //printQueue(*newjob);
     return 0;
 }
 
@@ -85,7 +105,7 @@ int runningSchedule(struct Job *newjob)
         runningReSortJobs(currentPolicy);
         policyChange = 1;
 #ifdef DEBUG
-        printf("policy change, time to sort, current job id: %d\n", head->id);
+        printf("policy change, time to sort, current job id: %d\n", head_job_scheduled->id);
 #endif // DEBUG
     }
     // call an insert function, send it the job and policy. do not change running job

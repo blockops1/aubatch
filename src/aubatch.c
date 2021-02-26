@@ -22,9 +22,16 @@ int main(int argc, char *argv[])
     head_job_submitted = NULL;
     head_job_scheduled = NULL;
     head_job_completed = NULL;
-    struct Job *newjob = NULL;
+    struct Job* newjob = NULL;
     enum Policy policy = FCFS;
     currentPolicy = policy;
+    policyChange = 1;
+    submitted_buffer_size = 3;
+    submitted_size = 0;
+    scheduled_buffer_size = 3;
+    scheduled_size = 0;
+    hardquit = 1;
+    softquit = 1;
 
 
     //int success;
@@ -66,63 +73,66 @@ int main(int argc, char *argv[])
 
     //call scheduler as a pthread job - this will keep running until told to quit
     pthread_t schedule_tid1;
-    void * schedule_param1_ptr1 = NULL;
+    void* schedule_param1_ptr1 = NULL;
     if (pthread_create(&schedule_tid1, NULL, tRunningSchedule, schedule_param1_ptr1)){
         perror("ERROR creating scheduling thread.\n");
     } 
-    void* returnval;
+    void* returnval = NULL;
       
 
     //current pointer at first job
     newjob = &job1;
     submitJob(newjob);
-    printf("sleep 3 seconds");
-    sleep(3);
-    printf("Submitted Queue:\n");
+    printf("job 1 submitted sleep 3 seconds\n");
+    sleep(1);
+    printf("Submitted Queue after job 1:\n");
     printQueue(head_job_submitted); 
 
-    printf("sleep 3 seconds");
-    sleep(3);
-    printf("Scheduled Queue:\n");
-    printQueue(head_job_scheduled); 
+    printf("sleep 3 seconds\n");
+    sleep(1);
+
 
     newjob = &job2;
     submitJob(newjob);
-    printf("sleep 3 seconds");
-    sleep(3);
+    printf("job 2 submitted sleep 3 seconds\n");
+    sleep(1);
     printf("Submitted Queue:\n");
     printQueue(head_job_submitted); 
 
-    printf("sleep 3 seconds");
-    sleep(3);
-    printf("Scheduled Queue:\n");
-    printQueue(head_job_scheduled); 
+    printf("sleep 3 seconds\n");
+    sleep(1);
+
 
     policy = SJF;
     policyChange = 0;
     currentPolicy = policy;
 
-    printf("sleep 3 seconds");
-    sleep(3);
+    printf("sleep 3 seconds\n");
+    sleep(1);
     printf("Scheduled Queue:\n");
     printQueue(head_job_scheduled); 
 
     newjob = &job3;
     submitJob(newjob);
-    printf("sleep 3 seconds");
-    sleep(3);
+    printf("sleep 3 seconds\n");
+    sleep(1);
     printf("Submitted Queue:\n");
     printQueue(head_job_submitted); 
 
-    printf("sleep 3 seconds");
-    sleep(3);
-    printf("Scheduled Queue:\n");
-    printQueue(head_job_scheduled); 
+    printf("sleep 3 seconds\n");
+    sleep(1);
 
 
-    hardquit = 0;
-    pthread_join(schedule_tid1, &returnval);
 
+
+    printf("sleep 10 seconds\n");
+    sleep(10);
+
+    //quit the thread
+    //pthread_cond_signal(&scheduled_full);
+    //pthread_cond_signal(&submitted_empty);
+    //hardquit = 0;
+    pthread_join(schedule_tid1, returnval);
     pthread_mutex_destroy(&submitted_mutex); 
     pthread_mutex_destroy(&scheduled_mutex); 
 }

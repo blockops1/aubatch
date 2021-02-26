@@ -7,9 +7,9 @@
 #include "aubatch_utilities.h"
 
 // global variables
-extern struct Job *head_job_submitted;
-extern struct Job *head_job_scheduled;
-extern struct Job *head_job_completed;
+extern struct Job* head_job_submitted;
+extern struct Job* head_job_scheduled;
+extern struct Job* head_job_completed;
 extern enum Policy currentPolicy;
 extern int policyChange;
 extern pthread_mutex_t submitted_mutex;
