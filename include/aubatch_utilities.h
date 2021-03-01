@@ -5,7 +5,10 @@
 
 int submitJob(struct Job*);
 void *tDispatcher(void*);
-int dispatch();
+int runjob(struct Job**);
+int submitDispatch(struct Job **);
+int moveToCompleted(struct Job**);
+
 //int printQueue(); 
 
 // global variables

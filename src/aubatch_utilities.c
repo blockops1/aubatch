@@ -74,7 +74,7 @@ void *tDispatcher(void* received_parameters){
                 pthread_exit(NULL);
             }
         }
-        moveToCompleted(newjob);
+        moveToCompleted(&newjob);
         pthread_cond_signal(&scheduled_empty);
         pthread_mutex_unlock(&scheduled_mutex);
     }
@@ -86,15 +86,58 @@ void *tDispatcher(void* received_parameters){
     return 0;
 }
 
+int submitDispatch(struct Job **newjob)
+{
+    // get new job from head of submit queue
+    if (head_job_scheduled == NULL)
+        return 1; //tried to get a job when none available
+    *newjob = head_job_scheduled;
+    head_job_scheduled = (*newjob)->next;
+    (*newjob)->next = NULL;
+    scheduled_size--;
+    return 0;
+}
 
-// define dispatcher function to pull a job off the head of queue and run it
-int dispatch()
+// run the job based on its CPU time
+int runjob(struct Job** newjob)
 {
     // dispatcher runs until finished. Keeps a clock and counts every second?
     if (head_job_scheduled == NULL)
         return 1;
     return 0;
 }
+
+int moveToCompleted(struct Job** newjob)
+{
+    struct Job* current = NULL;
+    // put new job in submit queue
+    //pthread_mutex_lock(&submitted_mutex);
+    if (submitted_size >= submitted_buffer_size)
+    {
+        printf("submitted queue is at max limit\n");
+        //pthread_cond_wait(&submitted_full, &submitted_mutex);
+    }
+    if (head_job_completed == NULL)
+    {
+        head_job_completed = *newjob;
+        completed_size++;
+        printf("was null, completed queue size: %d\n", completed_size);
+    } else {
+        current = head_job_completed;
+        //traverse to tail and add job
+        while(current->next != NULL) {
+            current = current->next;
+        }
+        current->next = *newjob;
+        completed_size++;
+        printf("found tail, submit queue size: %d\n", completed_size);
+    }
+    //printQueue(head_job_submitted); 
+    //pthread_cond_signal(&submitted_empty);
+    //pthread_mutex_unlock(&submitted_mutex);
+    return 0;
+}
+
 
 int printQueue(struct Job* head)
 {
