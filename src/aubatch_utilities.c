@@ -8,9 +8,6 @@
 
 #include "aubatch_utilities.h"
 
-void *tDispatcher(void* received_parameters){
-    return 0;
-}
 
 int submitJob(struct Job* newjob)
 {
@@ -42,6 +39,53 @@ int submitJob(struct Job* newjob)
     //pthread_mutex_unlock(&submitted_mutex);
     return 0;
 }
+
+void *tDispatcher(void* received_parameters){
+    struct Job *newjob = NULL;
+    while (hardquit != 0)
+    {
+        pthread_mutex_lock(&scheduled_mutex);
+        if (scheduled_size <= 0)
+        {
+            //nothing in the submit buffer, just wait
+            printf("submit queue is empty\n");
+            pthread_cond_wait(&scheduled_empty, &scheduled_mutex); // wait until not empty
+            if (hardquit == 0)
+            {
+                printf("terminating dispatch thread at point 1\n");
+                pthread_exit(NULL);
+            }
+        }
+        // read from head of schedule queue and get pointer to item at head of queue
+        submitDispatch(&newjob);
+        pthread_cond_signal(&scheduled_full); //it is not full anymore
+        pthread_mutex_unlock(&scheduled_mutex);
+        // work the current job - get data and fill it out
+        runJob(&newjob);
+        // write to completed queue
+        pthread_mutex_lock(&completed_mutex);
+        if (completed_size > completed_buffer_size)
+        {
+            printf("completed queue is at max limit\n");
+            pthread_cond_wait(&completed_full, &completed_mutex);
+            if (hardquit == 0)
+            {
+                printf("terminating dispatch thread at point 2\n");
+                pthread_exit(NULL);
+            }
+        }
+        moveToCompleted(newjob);
+        pthread_cond_signal(&scheduled_empty);
+        pthread_mutex_unlock(&scheduled_mutex);
+    }
+    if (hardquit == 0)
+    {
+        printf("terminating schedule thread at end\n");
+        pthread_exit(NULL);
+    }
+    return 0;
+}
+
 
 // define dispatcher function to pull a job off the head of queue and run it
 int dispatch()
