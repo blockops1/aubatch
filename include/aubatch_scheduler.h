@@ -66,6 +66,7 @@ int completed_buffer_size;
 int completed_size;
 int hardquit;
 int softquit;
+int procTime;
 
 
 #endif 

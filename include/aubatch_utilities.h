@@ -5,7 +5,7 @@
 
 int submitJob(struct Job*);
 void *tDispatcher(void*);
-int runjob(struct Job**);
+int runJob(struct Job**);
 int submitDispatch(struct Job **);
 int moveToCompleted(struct Job**);
 
@@ -34,5 +34,6 @@ extern int completed_buffer_size;
 extern int completed_size;
 extern int hardquit;
 extern int softquit;
+extern int procTime;
 
 #endif

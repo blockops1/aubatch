@@ -23,17 +23,18 @@ int main(int argc, char *argv[])
     head_job_scheduled = NULL;
     head_job_completed = NULL;
     struct Job* newjob = NULL;
-    enum Policy policy = FCFS;
+    enum Policy policy = SJF;
     currentPolicy = policy;
     policyChange = 1;
-    submitted_buffer_size = 3;
+    submitted_buffer_size = 10;
     submitted_size = 0;
-    scheduled_buffer_size = 3;
+    scheduled_buffer_size = 10;
     scheduled_size = 0;
-    completed_buffer_size = 3;
+    completed_buffer_size = 10;
     completed_size = 0;
     hardquit = 1;
     softquit = 1;
+    procTime = 0;
 
 
     //int success;
@@ -42,7 +43,7 @@ int main(int argc, char *argv[])
     job1.id = 1;
     job1.name = "job1";
     job1.priority = 1;
-    job1.cpu_time = 10;
+    job1.cpu_time = 3;
     job1.arrival_time = 0;
     job1.next = NULL;
 
@@ -51,8 +52,8 @@ int main(int argc, char *argv[])
     job2.id = 2;
     job2.name = "job2";
     job2.priority = 0;
-    job2.cpu_time = 20;
-    job2.arrival_time = 20;
+    job2.cpu_time = 5;
+    job2.arrival_time = 10;
     job2.next = NULL;
 
     //create third job
@@ -60,8 +61,8 @@ int main(int argc, char *argv[])
     job3.id = 3;
     job3.name = "job3";
     job3.priority = 2;
-    job3.cpu_time = 5;
-    job3.arrival_time = 30;
+    job3.cpu_time = 4;
+    job3.arrival_time = 15;
     job3.next = NULL;
 
     if (pthread_mutex_init(&submitted_mutex, NULL) != 0) { 
@@ -95,37 +96,41 @@ int main(int argc, char *argv[])
 
     //current pointer at first job
     newjob = &job1;
-    pthread_mutex_lock(&submitted_mutex);
+    //printf("calling submit for job1\n");
+    //pthread_mutex_lock(&submitted_mutex);
+    //printf("got lock for job1\n");
     submitJob(newjob);
-    pthread_cond_signal(&submitted_empty);
-    printf("Submitted Queue after job 1:\n");
-    printQueue(head_job_submitted); 
-    pthread_mutex_unlock(&submitted_mutex);
+    //printf("returned from submit for job1\n");
+    //pthread_cond_signal(&submitted_empty);
+    //printf("Submitted Queue after job 1:\n");
+    //printQueue(head_job_submitted); 
+    //pthread_mutex_unlock(&submitted_mutex);
 
 
 
     newjob = &job2;
-    pthread_mutex_lock(&submitted_mutex);
+    printf("calling submit for job2\n");
+    //pthread_mutex_lock(&submitted_mutex);
     submitJob(newjob);
-    pthread_cond_signal(&submitted_empty);
-    printf("Submitted Queue after job 2:\n");
-    printQueue(head_job_submitted); 
-    pthread_mutex_unlock(&submitted_mutex);
+    //pthread_cond_signal(&submitted_empty);
+    //printf("Submitted Queue after job 2:\n");
+    //printQueue(head_job_submitted); 
+    //pthread_mutex_unlock(&submitted_mutex);
 
-    policy = SJF;
-    policyChange = 0;
-    currentPolicy = policy;
+    //policy = SJF;
+    //policyChange = 0;
+    //currentPolicy = policy;
 
     newjob = &job3;
-    pthread_mutex_lock(&submitted_mutex);
+    //pthread_mutex_lock(&submitted_mutex);
     submitJob(newjob);
-    pthread_cond_signal(&submitted_empty);
-    printf("Submitted Queue after job 3:\n");
-    printQueue(head_job_submitted); 
-    pthread_mutex_unlock(&submitted_mutex);
+    //pthread_cond_signal(&submitted_empty);
+    //printf("Submitted Queue after job 3:\n");
+    //printQueue(head_job_submitted); 
+    //pthread_mutex_unlock(&submitted_mutex);
 
-    printf("sleep 10 seconds\n");
-    sleep(10);
+    printf("sleep 30 seconds\n");
+    sleep(30);
 
     //quit the thread
     //pthread_cond_signal(&scheduled_full);
@@ -134,8 +139,12 @@ int main(int argc, char *argv[])
     pthread_join(schedule_tid1, returnval);
     pthread_mutex_destroy(&submitted_mutex); 
     pthread_mutex_destroy(&scheduled_mutex); 
-    printf("Scheduled Queue:\n");
+    printf("\nSubmitted Queue:\n");
+    printQueue(head_job_submitted);
+    printf("\nScheduled Queue:\n");
     printQueue(head_job_scheduled);
+    printf("\nCompleted Queue:\n");
+    printQueue(head_job_completed);
 }
 
 /// definitions start
