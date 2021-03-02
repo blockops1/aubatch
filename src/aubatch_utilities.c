@@ -8,7 +8,6 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-
 #include "aubatch_utilities.h"
 
 // this can be called from a driver program to put a job in submit queue
@@ -97,12 +96,39 @@ void *tDispatcher(void *received_parameters)
 
 int submitDispatch(struct Job **newjob)
 {
-    // get new job from head of submit queue
+    // get new job from head of scheduled queue
+    // if arrival time is after current procTime, go to the next one in queue
     if (head_job_scheduled == NULL)
         return 1; //tried to get a job when none available
+    
     *newjob = head_job_scheduled;
-    head_job_scheduled = (*newjob)->next;
-    (*newjob)->next = NULL;
+    struct Job *trailjob = head_job_scheduled;
+    float nextJobTime = (*newjob)->arrival_time;
+    // check if the job arrival time is not yet. If so, traverse until job found
+    while ((*newjob) != NULL && (*newjob)->arrival_time > procTime)
+    {
+        if((*newjob)->arrival_time < nextJobTime) {
+            nextJobTime = (*newjob)->arrival_time;
+        }
+        trailjob = *newjob;
+        (*newjob) = (*newjob)->next;
+    }
+    // pull job out of queue
+    // if NULL, whole list was traversed, did not find any earlier job, will be waiting
+    if ((*newjob) == NULL) {
+        *newjob = head_job_scheduled;
+    }
+    // if this is true, head job arrival time <= procTime, no traversing was done
+    if ((*newjob) == head_job_scheduled)
+    {
+        head_job_scheduled = (*newjob)->next;
+        (*newjob)->next = NULL;
+    } 
+    // some job in the middle was found. Yank it out and run it
+    if (trailjob != NULL && (*newjob) != NULL) {
+        trailjob->next = (*newjob)->next;
+        (*newjob)->next = NULL;
+    }
     scheduled_size--;
     return 0;
 }
@@ -113,20 +139,20 @@ int runJob(struct Job **newjob)
     // job runs until finished. Keeps a clock and counts every second?
     if (*newjob == NULL)
         return 1;
-    int wait = (*newjob)->arrival_time - procTime;
+    float wait = (*newjob)->arrival_time - procTime;
     if (wait > 0)
     {
-        printf("Waiting to run job id: %d waiting for %d seconds until job arrival time - cpu idle\n", (*newjob)->id, wait);
+        printf("Waiting to run job id: %d waiting for %f seconds until job arrival time - cpu idle\n", (*newjob)->id, wait);
         sleep(wait);
         procTime += wait;
     }
     (*newjob)->starting_time = procTime;
     char id[6];
     sprintf(id, "%d", (*newjob)->id);
-    char starting_time[6];
-    sprintf(starting_time, "%d", (*newjob)->starting_time);
-    char cpu_time[6];
-    sprintf(cpu_time, "%d", (*newjob)->cpu_time);
+    char starting_time[17];
+    sprintf(starting_time, "%f", (*newjob)->starting_time);
+    char cpu_time[17];
+    sprintf(cpu_time, "%f", (*newjob)->cpu_time);
     //printf("./workprogram %s %s %s\n", id, starting_time, cpu_time);
     //printf("Running job id: %d waiting for %d seconds while running job - cpu working\n", (*newjob)->id, (*newjob)->cpu_time);
     //pid_t parent = getpid();
@@ -196,10 +222,10 @@ int printQueue(struct Job *head)
         printf("ID: %d\n", current->id);
         printf("Name: %s\n", current->name);
         printf("Priority: %d\n", current->priority);
-        printf("CPU time: %d\n", current->cpu_time);
-        printf("Arrival Time: %d\n", current->arrival_time);
-        printf("Starting time: %d\n", current->starting_time);
-        printf("Finish Time: %d\n", current->finish_time);
+        printf("CPU time: %f\n", current->cpu_time);
+        printf("Arrival Time: %f\n", current->arrival_time);
+        printf("Starting time: %f\n", current->starting_time);
+        printf("Finish Time: %f\n", current->finish_time);
         if (current->next != NULL)
         {
             printf("Next Job: %d\n\n", current->next->id);
@@ -219,22 +245,23 @@ int printQueue(struct Job *head)
 int statisticsCompleted()
 {
     struct Job *current = NULL;
-    if (head_job_completed == NULL) {
+    if (head_job_completed == NULL)
+    {
         printf("No jobs have been completed\n");
         return 0;
-    } 
+    }
     current = head_job_completed;
     pthread_mutex_lock(&completed_mutex);
     int completed = completed_size;
-    int totalTurnaroundTime = 0;
-    int totalCPUTime = 0;
-    int waitingTime = 0;
-    int totalWaitingTime = 0;
-    int turnaroundTime = 0;
+    float totalTurnaroundTime = 0;
+    float totalCPUTime = 0;
+    float waitingTime = 0;
+    float totalWaitingTime = 0;
+    float turnaroundTime = 0;
     float avgTurnaroundTime = 0;
     float avgCPUTime = 0;
     float avgWaitingTime = 0;
-    float throughput = 0;
+    float totalThroughput = 0;
     //traverse to tail gathering statistics
     printf("Individual Job Performance Report\n");
     while (current != NULL)
@@ -244,22 +271,27 @@ int statisticsCompleted()
         waitingTime = current->starting_time - current->arrival_time;
         totalWaitingTime += waitingTime;
         totalCPUTime += current->cpu_time;
-        printf("id: %d cpu time:%d arrival: %d start: %d finish %d wait:%d\n",current->id, current->cpu_time, current->arrival_time, current->starting_time, current->finish_time, waitingTime );
+        printf("id: %d cpu time:%f arrival: %f start: %f finish %f wait:%f\n", current->id, current->cpu_time, current->arrival_time, current->starting_time, current->finish_time, waitingTime);
         current = current->next;
     }
     pthread_mutex_unlock(&completed_mutex);
-    avgTurnaroundTime = (float)totalTurnaroundTime/(float)completed;
-    avgCPUTime = (float)totalCPUTime/(float)completed;
-    avgWaitingTime = (float)totalWaitingTime/(float)completed;
-    throughput = 1/avgTurnaroundTime;
+    avgTurnaroundTime = totalTurnaroundTime / completed;
+    avgCPUTime = totalCPUTime / completed;
+    avgWaitingTime = totalWaitingTime / completed;
+    totalThroughput = 1 / avgTurnaroundTime;
     printf("\nTotal Performance Report\n");
     printf("Total number of job submitted: %d\n", completed);
     printf("Average turnaround time: %f seconds\n", avgTurnaroundTime);
     printf("Average CPU time: %f seconds\n", avgCPUTime);
     printf("Average waiting time: %f seconds\n", avgWaitingTime);
-    printf("Throughput: %f jobs/second\n\n", throughput);
-
+    printf("Throughput: %f jobs/second\n\n", totalThroughput);
 
     return 0;
 }
 
+int commandlineParser()
+{
+    // provide an interative environment for job operations
+
+    return 0;
+}

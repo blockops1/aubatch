@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
     job3.name = "job3";
     job3.priority = 2;
     job3.cpu_time = 4;
-    job3.arrival_time = 15;
+    job3.arrival_time = 2;
     job3.next = NULL;
 
     if (pthread_mutex_init(&submitted_mutex, NULL) != 0) { 

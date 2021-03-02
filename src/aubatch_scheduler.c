@@ -150,7 +150,6 @@ int runningReSortedInsert(struct Job **sorted, struct Job *newjob, enum Policy p
         *sorted = newjob;
         return 0;
     }
-
     /* Locate the node before the point of insertion */
     current = *sorted;
     if (policy == FCFS)

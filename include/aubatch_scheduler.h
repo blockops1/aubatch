@@ -23,10 +23,10 @@ struct Job {
     int id;
     char* name;
     int priority; // 0 to 7, with lower numbers being higher priority
-    int cpu_time; // this is measured in seconds
-    int arrival_time;
-    int starting_time;
-    int finish_time;
+    float cpu_time; // this is measured in seconds
+    float arrival_time;
+    float starting_time;
+    float finish_time;
     struct Job *next;
 };
 
@@ -66,7 +66,7 @@ int completed_buffer_size;
 int completed_size;
 int hardquit;
 int softquit;
-int procTime;
+float procTime;
 
 
 #endif 
