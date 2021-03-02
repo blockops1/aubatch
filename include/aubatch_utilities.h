@@ -8,6 +8,7 @@ void *tDispatcher(void*);
 int runJob(struct Job**);
 int submitDispatch(struct Job **);
 int moveToCompleted(struct Job**);
+int statisticsCompleted();
 
 //int printQueue(); 
 

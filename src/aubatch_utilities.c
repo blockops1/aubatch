@@ -11,6 +11,7 @@
 
 #include "aubatch_utilities.h"
 
+// this can be called from a driver program to put a job in submit queue
 int submitJob(struct Job *newjob)
 {
     struct Job *current = NULL;
@@ -213,3 +214,52 @@ int printQueue(struct Job *head)
     }
     return 0;
 }
+
+// this traverses the completed queue, generates and prints statistics for total completed jobs
+int statisticsCompleted()
+{
+    struct Job *current = NULL;
+    if (head_job_completed == NULL) {
+        printf("No jobs have been completed\n");
+        return 0;
+    } 
+    current = head_job_completed;
+    pthread_mutex_lock(&completed_mutex);
+    int completed = completed_size;
+    int totalTurnaroundTime = 0;
+    int totalCPUTime = 0;
+    int waitingTime = 0;
+    int totalWaitingTime = 0;
+    int turnaroundTime = 0;
+    float avgTurnaroundTime = 0;
+    float avgCPUTime = 0;
+    float avgWaitingTime = 0;
+    float throughput = 0;
+    //traverse to tail gathering statistics
+    printf("Individual Job Performance Report\n");
+    while (current != NULL)
+    {
+        turnaroundTime = current->finish_time - current->arrival_time;
+        totalTurnaroundTime += turnaroundTime;
+        waitingTime = current->starting_time - current->arrival_time;
+        totalWaitingTime += waitingTime;
+        totalCPUTime += current->cpu_time;
+        printf("id: %d cpu time:%d arrival: %d start: %d finish %d wait:%d\n",current->id, current->cpu_time, current->arrival_time, current->starting_time, current->finish_time, waitingTime );
+        current = current->next;
+    }
+    pthread_mutex_unlock(&completed_mutex);
+    avgTurnaroundTime = (float)totalTurnaroundTime/(float)completed;
+    avgCPUTime = (float)totalCPUTime/(float)completed;
+    avgWaitingTime = (float)totalWaitingTime/(float)completed;
+    throughput = 1/avgTurnaroundTime;
+    printf("\nTotal Performance Report\n");
+    printf("Total number of job submitted: %d\n", completed);
+    printf("Average turnaround time: %f seconds\n", avgTurnaroundTime);
+    printf("Average CPU time: %f seconds\n", avgCPUTime);
+    printf("Average waiting time: %f seconds\n", avgWaitingTime);
+    printf("Throughput: %f jobs/second\n\n", throughput);
+
+
+    return 0;
+}
+

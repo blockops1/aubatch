@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
     head_job_scheduled = NULL;
     head_job_completed = NULL;
     struct Job* newjob = NULL;
-    enum Policy policy = SJF;
+    enum Policy policy = Priority;
     currentPolicy = policy;
     policyChange = 1;
     submitted_buffer_size = 10;
@@ -146,6 +146,7 @@ int main(int argc, char *argv[])
     printQueue(head_job_scheduled);
     printf("\nCompleted Queue:\n");
     printQueue(head_job_completed);
+    statisticsCompleted();
 }
 
 /// definitions start
