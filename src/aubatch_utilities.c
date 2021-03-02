@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <sys/wait.h>
 
 
 #include "aubatch_utilities.h"
@@ -24,7 +25,7 @@ int submitJob(struct Job *newjob)
     {
         head_job_submitted = newjob;
         submitted_size++;
-        printf("was null, submit queue size: %d\n", submitted_size);
+        //printf("was null, submit queue size: %d\n", submitted_size);
     }
     else
     {
@@ -36,7 +37,7 @@ int submitJob(struct Job *newjob)
         }
         current->next = newjob;
         submitted_size++;
-        printf("found tail, submit queue size: %d\n", submitted_size);
+        //printf("found tail, submit queue size: %d\n", submitted_size);
     }
     //printf("submit function:\n");
     //printQueue(head_job_submitted);
@@ -54,7 +55,7 @@ void *tDispatcher(void *received_parameters)
         if (scheduled_size <= 0)
         {
             //nothing in the submit buffer, just wait
-            printf("submit queue is empty\n");
+            //printf("submit queue is empty\n");
             pthread_cond_wait(&scheduled_empty, &scheduled_mutex); // wait until not empty
             if (hardquit == 0)
             {
@@ -112,14 +113,39 @@ int runJob(struct Job **newjob)
     if (*newjob == NULL)
         return 1;
     int wait = (*newjob)->arrival_time - procTime;
-    if (wait > 0) { 
-        printf("waiting for %d seconds until job arrival time - cpu idle\n", wait);
+    if (wait > 0)
+    {
+        printf("Waiting to run job id: %d waiting for %d seconds until job arrival time - cpu idle\n", (*newjob)->id, wait);
         sleep(wait);
         procTime += wait;
     }
     (*newjob)->starting_time = procTime;
-    printf("waiting for %d seconds while running job - cpu working\n", (*newjob)->cpu_time);
-    sleep((*newjob)->cpu_time);
+    char id[6];
+    sprintf(id, "%d", (*newjob)->id);
+    char starting_time[6];
+    sprintf(starting_time, "%d", (*newjob)->starting_time);
+    char cpu_time[6];
+    sprintf(cpu_time, "%d", (*newjob)->cpu_time);
+    //printf("./workprogram %s %s %s\n", id, starting_time, cpu_time);
+    //printf("Running job id: %d waiting for %d seconds while running job - cpu working\n", (*newjob)->id, (*newjob)->cpu_time);
+    //pid_t parent = getpid();
+    pid_t pid = fork();
+    if (pid == -1)
+    {
+        printf("error, failed to fork()");
+    }
+    else if (pid > 0)
+    {
+        int status;
+        waitpid(pid, &status, 0);
+    }
+    else
+    {
+        // we are the child
+        char *args[] = {"./work_program", id, starting_time, cpu_time, NULL};
+        execv(args[0], args);
+        _exit(EXIT_FAILURE); // exec never returns
+    }
     procTime += (*newjob)->cpu_time;
     (*newjob)->finish_time = procTime;
     return 0;
@@ -139,7 +165,7 @@ int moveToCompleted(struct Job **newjob)
     {
         head_job_completed = *newjob;
         completed_size++;
-        printf("was null, completed queue size: %d\n", completed_size);
+        //printf("was null, completed queue size: %d\n", completed_size);
     }
     else
     {
@@ -151,7 +177,7 @@ int moveToCompleted(struct Job **newjob)
         }
         current->next = *newjob;
         completed_size++;
-        printf("found tail, completed queue size: %d\n", completed_size);
+        //printf("found tail, completed queue size: %d\n", completed_size);
     }
     //printQueue(head_job_completed);
     pthread_cond_signal(&completed_empty);
@@ -187,4 +213,3 @@ int printQueue(struct Job *head)
     }
     return 0;
 }
-

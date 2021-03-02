@@ -19,6 +19,9 @@ $(ODIR)/%.o: %.c $(DEPS)
 aubatch: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
 
+work_program: 
+	gcc -Wall -Werror -o work_program work_program.c
+
 .PHONY: clean
 
 clean:

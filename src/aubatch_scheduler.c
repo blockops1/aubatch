@@ -23,7 +23,7 @@ void *tRunningSchedule(void *received_parameters)
         if (submitted_size <= 0)
         {
             //nothing in the submit buffer, just wait
-            printf("submit queue is empty\n");
+            //printf("submit queue is empty\n");
             pthread_cond_wait(&submitted_empty, &submitted_mutex); // wait until not empty
             if (hardquit == 0)
             {

@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
 
 
     newjob = &job2;
-    printf("calling submit for job2\n");
+    //printf("calling submit for job2\n");
     //pthread_mutex_lock(&submitted_mutex);
     submitJob(newjob);
     //pthread_cond_signal(&submitted_empty);
@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
     //printQueue(head_job_submitted); 
     //pthread_mutex_unlock(&submitted_mutex);
 
-    printf("sleep 30 seconds\n");
+    printf("driver program sleep 30 seconds\n");
     sleep(30);
 
     //quit the thread
@@ -139,6 +139,7 @@ int main(int argc, char *argv[])
     pthread_join(schedule_tid1, returnval);
     pthread_mutex_destroy(&submitted_mutex); 
     pthread_mutex_destroy(&scheduled_mutex); 
+    pthread_mutex_destroy(&completed_mutex); 
     printf("\nSubmitted Queue:\n");
     printQueue(head_job_submitted);
     printf("\nScheduled Queue:\n");
