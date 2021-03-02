@@ -4,17 +4,18 @@
  * Date: 18 Feb 2021
  */
 
-
 #include <sys/types.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <ctype.h>
 #include <string.h>
 #include <assert.h>
 #include <pthread.h>
 #include <unistd.h>
 #include "aubatch.h"
 
-
+int splitInput(char *, void *);
+size_t string_parser(const char *, char ***);
 
 int main(int argc, char *argv[])
 {
@@ -22,7 +23,7 @@ int main(int argc, char *argv[])
     head_job_submitted = NULL;
     head_job_scheduled = NULL;
     head_job_completed = NULL;
-    struct Job* newjob = NULL;
+    struct Job *newjob = NULL;
     enum Policy policy = Priority;
     currentPolicy = policy;
     policyChange = 1;
@@ -35,7 +36,6 @@ int main(int argc, char *argv[])
     hardquit = 1;
     softquit = 1;
     procTime = 0;
-
 
     //int success;
     //create the first job
@@ -65,34 +65,71 @@ int main(int argc, char *argv[])
     job3.arrival_time = 2;
     job3.next = NULL;
 
-    if (pthread_mutex_init(&submitted_mutex, NULL) != 0) { 
-        printf("\n mutex init has failed\n"); 
-        return 1; 
+    if (pthread_mutex_init(&submitted_mutex, NULL) != 0)
+    {
+        printf("\n mutex init has failed\n");
+        return 1;
     }
-    if (pthread_mutex_init(&scheduled_mutex, NULL) != 0) { 
-        printf("\n mutex init has failed\n"); 
-        return 1; 
+    if (pthread_mutex_init(&scheduled_mutex, NULL) != 0)
+    {
+        printf("\n mutex init has failed\n");
+        return 1;
     }
-    if (pthread_mutex_init(&completed_mutex, NULL) != 0) { 
-        printf("\n mutex init has failed\n"); 
-        return 1; 
+    if (pthread_mutex_init(&completed_mutex, NULL) != 0)
+    {
+        printf("\n mutex init has failed\n");
+        return 1;
     }
 
     //call scheduler as a pthread job - this will keep running until told to quit
     pthread_t schedule_tid1;
-    void* schedule_param1_ptr1 = NULL;
-    if (pthread_create(&schedule_tid1, NULL, tRunningSchedule, schedule_param1_ptr1)){
+    void *schedule_param1_ptr1 = NULL;
+    if (pthread_create(&schedule_tid1, NULL, tRunningSchedule, schedule_param1_ptr1))
+    {
         perror("ERROR creating scheduling thread.\n");
-    } 
+    }
 
     //call dispatcher as a pthread job - this will keep running until told to quit
     pthread_t dispatch_tid1;
-    void* dispatch_param1_ptr1 = NULL;
-    if (pthread_create(&dispatch_tid1, NULL, tDispatcher, dispatch_param1_ptr1)){
+    void *dispatch_param1_ptr1 = NULL;
+    if (pthread_create(&dispatch_tid1, NULL, tDispatcher, dispatch_param1_ptr1))
+    {
         perror("ERROR creating dispatching thread.\n");
-    } 
-    void* returnval = NULL;
-      
+    }
+    void *returnval = NULL;
+
+    // start the parser running
+    char *line = NULL; /* forces getline to allocate with malloc */
+    size_t len = 0;    /* ignored when line = NULL */
+    ssize_t read;
+    printf("welcome to blockops job scheduled v0.12\n");
+    printf("\nEnter string below, type 'help' for command options, [ctrl + d] to quit\n");
+    printf(">");
+
+    while ((read = getline(&line, &len, stdin)) != -1)
+    {
+
+        if (read > 0)
+        {
+            printf("\n  read %zd chars from stdin, allocated %zd bytes for line : %s\n", read, len, line);
+            //char s[] = line;
+            char **word_array = NULL;
+
+            size_t n = string_parser(line, &word_array);
+
+            for (size_t i = 0; i < n; i++)
+                puts(word_array[i]);
+
+            //after done using word_array
+            for (size_t i = 0; i < n; i++)
+            free(word_array[i]);
+            free(word_array);
+        }
+
+        printf(">");
+    }
+
+    free(line); /* free memory allocated by getline */
 
     //current pointer at first job
     newjob = &job1;
@@ -103,10 +140,8 @@ int main(int argc, char *argv[])
     //printf("returned from submit for job1\n");
     //pthread_cond_signal(&submitted_empty);
     //printf("Submitted Queue after job 1:\n");
-    //printQueue(head_job_submitted); 
+    //printQueue(head_job_submitted);
     //pthread_mutex_unlock(&submitted_mutex);
-
-
 
     newjob = &job2;
     //printf("calling submit for job2\n");
@@ -114,7 +149,7 @@ int main(int argc, char *argv[])
     submitJob(newjob);
     //pthread_cond_signal(&submitted_empty);
     //printf("Submitted Queue after job 2:\n");
-    //printQueue(head_job_submitted); 
+    //printQueue(head_job_submitted);
     //pthread_mutex_unlock(&submitted_mutex);
 
     //policy = SJF;
@@ -126,20 +161,21 @@ int main(int argc, char *argv[])
     submitJob(newjob);
     //pthread_cond_signal(&submitted_empty);
     //printf("Submitted Queue after job 3:\n");
-    //printQueue(head_job_submitted); 
+    //printQueue(head_job_submitted);
     //pthread_mutex_unlock(&submitted_mutex);
 
-    printf("driver program sleep 30 seconds\n");
-    sleep(30);
+    //printf("driver program sleep 30 seconds\n");
+    //sleep(30);
 
     //quit the thread
     //pthread_cond_signal(&scheduled_full);
     pthread_cond_signal(&submitted_empty);
     hardquit = 0;
     pthread_join(schedule_tid1, returnval);
-    pthread_mutex_destroy(&submitted_mutex); 
-    pthread_mutex_destroy(&scheduled_mutex); 
-    pthread_mutex_destroy(&completed_mutex); 
+    //pthread_join(dispatch_tid1, returnval);
+    pthread_mutex_destroy(&submitted_mutex);
+    pthread_mutex_destroy(&scheduled_mutex);
+    pthread_mutex_destroy(&completed_mutex);
     printf("\nSubmitted Queue:\n");
     printQueue(head_job_submitted);
     printf("\nScheduled Queue:\n");
@@ -149,9 +185,57 @@ int main(int argc, char *argv[])
     statisticsCompleted();
 }
 
-/// definitions start
+/// functions start
 
+int splitInput(char *input, void *returnArray)
+{
+    return 0;
+}
 
+size_t string_parser(const char *input, char ***word_array)
+// from https://stackoverflow.com/questions/43015843/parsing-a-string-in-c-to-individual-words
+{
+    size_t n = 0;
+    const char *p = input;
 
+    while (*p)
+    {
+        while (isspace((unsigned char)*p))
+            ++p;
+        n += *p != '\0';
+        while (*p && !isspace((unsigned char)*p))
+            ++p;
+    }
 
+    if (n)
+    {
+        size_t i = 0;
 
+        *word_array = malloc(n * sizeof(char *));
+
+        p = input;
+
+        while (*p)
+        {
+            while (isspace((unsigned char)*p))
+                ++p;
+            if (*p)
+            {
+                const char *q = p;
+                while (*p && !isspace((unsigned char)*p))
+                    ++p;
+
+                size_t length = p - q;
+
+                (*word_array)[i] = (char *)malloc(length + 1);
+
+                strncpy((*word_array)[i], q, length);
+                (*word_array)[i][length] = '\0';
+
+                ++i;
+            }
+        }
+    }
+
+    return n;
+}
