@@ -14,35 +14,6 @@
 #include <unistd.h>
 #include "aubatch.h"
 
-static struct
-{
-    // This command structure provided by Xiao Qin in commandline_parser.c
-    const char *name;
-    int (*func)(int nargs, char **args);
-} cmdtable[] = {
-    /* commands: single command must end with \n */
-    {"", cmd_helpmenu},
-    {"?", cmd_helpmenu},
-    {"h", cmd_helpmenu},
-    {"help", cmd_helpmenu},
-    {"j", cmd_queue_size},
-    {"jobs", cmd_queue_size},
-    {"l", cmd_list_jobs},
-    {"list", cmd_list_jobs},
-    //{ "r",		cmd_run },
-    //{ "run",	cmd_run },
-    {"q", cmd_quit},
-    {"quit", cmd_quit},
-    /* Please add more operations below. */
-    {NULL, NULL}};
-
-static const char *helpmenu[] = {
-    "[run] <job> <time> <priority>       ",
-    "[quit] Exit AUbatch                 ",
-    "[help] Print help menu              ",
-    /* Please add more menu options below */
-    NULL};
-
 int main(int argc, char *argv[])
 {
     //create the main job queue by initializing the head pointer
@@ -53,11 +24,11 @@ int main(int argc, char *argv[])
     enum Policy policy = Priority;
     currentPolicy = policy;
     policyChange = 1;
-    submitted_buffer_size = 10;
+    submitted_buffer_size = 100;
     submitted_size = 0;
-    scheduled_buffer_size = 10;
+    scheduled_buffer_size = 1;
     scheduled_size = 0;
-    completed_buffer_size = 10;
+    completed_buffer_size = 100000;
     completed_size = 0;
     hardquit = 1;
     softquit = 1;
@@ -165,7 +136,7 @@ int main(int argc, char *argv[])
         }
         if (running_job > 0)
         {
-            printf("job %d running", running_job->id);
+            printf("job running: %s", running_job->name);
         }
         printf(">");
     }
@@ -397,6 +368,50 @@ int print_queue_job_info(struct Job *head)
         // Update current
         current = current->next;
         count++;
+    }
+    return 0;
+}
+
+int cmd_policy_change(int nargs, char **args)
+{
+    char *policy_compare = NULL;
+    if (currentPolicy == FCFS)
+    {
+        policy_compare = "fcfs";
+        printf("FCFS is current policy\n");
+    }
+    if (currentPolicy == SJF)
+    {
+        policy_compare = "sjf";
+        printf("SJF is current policy\n");
+    }
+    if (currentPolicy == Priority)
+    {
+        policy_compare = "priority";
+        printf("Priority is current policy\n");
+    }
+    if (strcmp(args[0], policy_compare) == 0)
+    {
+        printf("Scheduling policy not changed\n");
+    }
+    else
+    {
+        if (strcmp(args[0], "fcfs") == 0)
+        {
+            currentPolicy = FCFS;
+            printf("Changing Policy to FCFS\n");
+        }
+        if (strcmp(args[0], "sjf") == 0)
+        {
+            currentPolicy = SJF;
+            printf("Changing Policy to SJF\n");
+        }
+        if (strcmp(args[0], "priority") == 0)
+        {
+            currentPolicy = Priority;
+            printf("Changing Policy to Priority\n");
+        }
+        policyChange = 0;
     }
     return 0;
 }

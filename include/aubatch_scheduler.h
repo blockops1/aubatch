@@ -37,6 +37,8 @@ enum Policy
     Priority = 2
 };
 
+
+
 //structure for calling scheduler thread
 struct tParameter {
     struct Job* newjob;
@@ -68,6 +70,7 @@ int completed_size;
 int hardquit;
 int softquit;
 float procTime;
+
 
 
 #endif 

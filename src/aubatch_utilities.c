@@ -9,6 +9,8 @@
 #include <sys/wait.h>
 
 #include "aubatch_utilities.h"
+struct Job waiting_job = {0, "waiting", 0, 0, 0, 0, 0, NULL};
+
 
 // this can be called from a driver program to put a job in submit queue
 int submitJob(struct Job *newjob)
@@ -143,7 +145,9 @@ int runJob(struct Job **newjob)
     if (wait > 0)
     {
         //printf("Waiting to run job id: %d waiting for %f seconds until job arrival time - cpu idle\n", (*newjob)->id, wait);
+        running_job = &waiting_job;
         sleep(wait);
+        running_job = NULL;
         procTime += wait;
     }
     (*newjob)->starting_time = procTime;
