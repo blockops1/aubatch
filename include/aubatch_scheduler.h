@@ -16,6 +16,7 @@ int runningReSortJobs(enum Policy);
 int runningReSortedInsert(struct Job **,struct Job *, enum Policy);
 int runningSortedJobInsert(struct Job *, enum Policy);
 int printQueue(); 
+int print_job(struct Job *);
 
 
 // create a structure to hold job data

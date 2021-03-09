@@ -10,6 +10,6 @@ int main(int argc, char *argv[]){
     //printf(" starting time:%f ", argv[2]);
     //printf(" running time:%s ", argv[3]);
     //printf("\n"); 
-    sleep(atoi(argv[3]));
+    sleep(atof(argv[1]));
     return 0; 
 } 

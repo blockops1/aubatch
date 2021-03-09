@@ -33,6 +33,7 @@ void *tRunningSchedule(void *received_parameters)
         }
         // read from submit queue and get pointer to item at head of queue
         submitSchedule(&newjob);
+        print_job(newjob);
         pthread_cond_signal(&submitted_full); //it is not full anymore
         pthread_mutex_unlock(&submitted_mutex);
 
@@ -242,5 +243,10 @@ int runningSortedJobInsert(struct Job *newjob, enum Policy policy)
             newjob->next = NULL;
         current->next = newjob;
     }
+    return 0;
+}
+
+int print_job(struct Job *testjob){
+    printf("%d %s %d %f %f \n", testjob->id, testjob->name, testjob->priority, testjob->cpu_time, testjob->arrival_time);
     return 0;
 }

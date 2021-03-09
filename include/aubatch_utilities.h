@@ -9,7 +9,7 @@ int runJob(struct Job**);
 int submitDispatch(struct Job **);
 int moveToCompleted(struct Job**);
 int statisticsCompleted();
-int commandlineParser();
+float process_time();
 
 //int printQueue(); 
 

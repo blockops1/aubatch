@@ -12,6 +12,7 @@
 #include <assert.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <time.h>
 #include "aubatch.h"
 
 int main(int argc, char *argv[])
@@ -20,7 +21,6 @@ int main(int argc, char *argv[])
     head_job_submitted = NULL;
     head_job_scheduled = NULL;
     head_job_completed = NULL;
-    struct Job *newjob = NULL;
     enum Policy policy = Priority;
     currentPolicy = policy;
     policyChange = 1;
@@ -32,43 +32,8 @@ int main(int argc, char *argv[])
     completed_size = 0;
     hardquit = 1;
     softquit = 1;
-    procTime = 0;
-
-    //int success;
-    //create the first job
-    struct Job job1 = {0};
-    job1.id = 1;
-    job1.name = "job1";
-    job1.priority = 1;
-    job1.cpu_time = 3;
-    job1.arrival_time = 0;
-    job1.next = NULL;
-
-    //create second job
-    struct Job job2 = {0};
-    job2.id = 2;
-    job2.name = "job2";
-    job2.priority = 0;
-    job2.cpu_time = 5;
-    job2.arrival_time = 10;
-    job2.next = NULL;
-
-    //create third job
-    struct Job job3 = {0};
-    job3.id = 3;
-    job3.name = "job3";
-    job3.priority = 2;
-    job3.cpu_time = 4;
-    job3.arrival_time = 2;
-    job3.next = NULL;
-
-    //current pointer at first job
-    newjob = &job1;
-    submitJob(newjob);
-    newjob = &job2;
-    submitJob(newjob);
-    newjob = &job3;
-    submitJob(newjob);
+    procTime = clock();
+    global_job_id = 0;
 
     if (pthread_mutex_init(&submitted_mutex, NULL) != 0)
     {
@@ -107,8 +72,8 @@ int main(int argc, char *argv[])
     char *line = NULL; /* forces getline to allocate with malloc */
     size_t len = 0;    /* ignored when line = NULL */
     ssize_t read;
-    printf("welcome to blockops job scheduled v0.12\n");
-    printf("\nEnter string below, type 'help' for command options, [ctrl + d] to quit\n");
+    printf("Welcome to BlockOps's batch job scheduler Version 1.0\n");
+    printf("\nType 'help' to find more about AUbatch commands.\n");
     printf(">");
 
     while ((read = getline(&line, &len, stdin)) != -1)
@@ -232,7 +197,7 @@ int cmd_helpmenu(int n, char **a)
 {
     (void)n;
     (void)a;
-    printf("cmd_helpmenu %s\n", a[0]);
+    //printf("cmd_helpmenu %s\n", a[0]);
 
     showmenu("AUbatch help menu", helpmenu);
     return 0;
@@ -242,25 +207,11 @@ int cmd_helpmenu(int n, char **a)
  */
 void showmenu(const char *name, const char *x[])
 {
-    int ct, half, i;
-
-    printf("\n");
-    printf("%s\n", name);
-
-    for (i = ct = 0; x[i]; i++)
+    int i = 0;
+    while (x[i] != NULL)
     {
-        ct++;
-    }
-    half = (ct + 1) / 2;
-
-    for (i = 0; i < half; i++)
-    {
-        printf("    %-36s", x[i]);
-        if (i + half < ct)
-        {
-            printf("%s", x[i + half]);
-        }
-        printf("\n");
+        printf("%s\n", x[i]);
+        i++;
     }
     printf("\n");
 }
@@ -415,3 +366,47 @@ int cmd_policy_change(int nargs, char **args)
     }
     return 0;
 }
+
+int cmd_run_job(int nargs, char **args)
+{
+    int new_priority = 0;
+    float new_time = 0;
+    //printf("nargs %d", nargs);
+    if (nargs < 3 || nargs > 4)
+    {
+        printf("incorrect input. Usage: run <job> <time> <pri>\n");
+        return 1;
+    }
+    if (nargs == 4)
+    {
+        new_priority = atoi(args[3]);
+        if (new_priority < 0)
+        {
+            printf("<priority> must be a non-negative number\n");
+            return 1;
+        }
+    }
+    new_time = atof(args[2]);
+    if (new_time <= 0)
+    {
+        printf("<time> must be a positive number\n");
+        return 1;
+    }
+    //create a new job
+    struct Job *newjob = NULL;
+    struct Job job1 = {0};
+    job1.id = ++global_job_id;
+    job1.name = args[1];
+    job1.priority = new_priority;
+    job1.cpu_time = new_time;
+    job1.arrival_time = process_time();
+    job1.next = NULL;
+
+    //current pointer at first job
+    newjob = &job1;
+    print_job(newjob);
+    submitJob(newjob);
+    return 0;
+}
+
+

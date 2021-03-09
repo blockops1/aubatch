@@ -15,6 +15,8 @@ int cmd_queue_size(int , char **);
 int cmd_list_jobs(int , char **);
 int print_queue_job_info(struct Job *);
 int cmd_policy_change(int , char **);
+int cmd_run_job(int , char **);
+
 
 // global variables
 extern struct Job* head_job_submitted;
@@ -41,6 +43,7 @@ extern int completed_size;
 extern int hardquit;
 extern int softquit;
 extern float procTime;
+int global_job_id;
 
 static struct
 {
@@ -60,17 +63,23 @@ static struct
     {"fcfs", cmd_policy_change},
     {"sjf", cmd_policy_change},
     {"priority", cmd_policy_change},
-    //{ "r",		cmd_run },
-    //{ "run",	cmd_run },
+    { "r",		cmd_run_job },
+    { "run",	cmd_run_job },
     {"q", cmd_quit},
     {"quit", cmd_quit},
     /* Please add more operations below. */
     {NULL, NULL}};
 
 static const char *helpmenu[] = {
-    "[run] <job> <time> <priority>       ",
-    "[quit] Exit AUbatch                 ",
-    "[help] Print help menu              ",
+    "run <job> <time> <pri>: submit a job named <job>,",
+    "\t\t\texecution time is <time>,",
+    "\t\t\tpriority is <pri>.",
+    "list: display the job status.",
+    "fcfs: change the scheduling policy to FCFS.",
+    "sjf: change the scheduling policy to SJF.",
+    "priority: change the scheduling policy to priority.",
+    "test <benchmark> <policy> <num_of_jobs> <priority_levels>\n     <min_CPU_time> <max_CPU_time>",
+    "quit: exit AUbatch",
     /* Please add more menu options below */
     NULL};
 
