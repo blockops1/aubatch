@@ -17,6 +17,7 @@ int commandlineParser();
 extern struct Job *head_job_submitted;
 extern struct Job *head_job_scheduled;
 extern struct Job *head_job_completed;
+extern struct Job* running_job;
 extern enum Policy currentPolicy;
 extern int policyChange;
 extern pthread_mutex_t submitted_mutex;

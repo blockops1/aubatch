@@ -142,7 +142,7 @@ int runJob(struct Job **newjob)
     float wait = (*newjob)->arrival_time - procTime;
     if (wait > 0)
     {
-        printf("Waiting to run job id: %d waiting for %f seconds until job arrival time - cpu idle\n", (*newjob)->id, wait);
+        //printf("Waiting to run job id: %d waiting for %f seconds until job arrival time - cpu idle\n", (*newjob)->id, wait);
         sleep(wait);
         procTime += wait;
     }
@@ -164,7 +164,9 @@ int runJob(struct Job **newjob)
     else if (pid > 0)
     {
         int status;
+        running_job = *newjob;
         waitpid(pid, &status, 0);
+        running_job = NULL;
     }
     else
     {
@@ -280,11 +282,11 @@ int statisticsCompleted()
     avgWaitingTime = totalWaitingTime / completed;
     totalThroughput = 1 / avgTurnaroundTime;
     printf("\nTotal Performance Report\n");
-    printf("Total number of job submitted: %d\n", completed);
-    printf("Average turnaround time: %f seconds\n", avgTurnaroundTime);
-    printf("Average CPU time: %f seconds\n", avgCPUTime);
-    printf("Average waiting time: %f seconds\n", avgWaitingTime);
-    printf("Throughput: %f jobs/second\n\n", totalThroughput);
+    printf("Total number of job submitted: \t%d\n", completed);
+    printf("Average turnaround time: \t%f seconds\n", avgTurnaroundTime);
+    printf("Average CPU time: \t\t%f seconds\n", avgCPUTime);
+    printf("Average waiting time: \t\t%f seconds\n", avgWaitingTime);
+    printf("Throughput: \t\t\t%f jobs/second\n\n", totalThroughput);
 
     return 0;
 }

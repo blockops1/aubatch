@@ -14,8 +14,34 @@
 #include <unistd.h>
 #include "aubatch.h"
 
-int splitInput(char *, void *);
-size_t string_parser(const char *, char ***);
+static struct
+{
+    // This command structure provided by Xiao Qin in commandline_parser.c
+    const char *name;
+    int (*func)(int nargs, char **args);
+} cmdtable[] = {
+    /* commands: single command must end with \n */
+    {"", cmd_helpmenu},
+    {"?", cmd_helpmenu},
+    {"h", cmd_helpmenu},
+    {"help", cmd_helpmenu},
+    {"j", cmd_queue_size},
+    {"jobs", cmd_queue_size},
+    {"l", cmd_list_jobs},
+    {"list", cmd_list_jobs},
+    //{ "r",		cmd_run },
+    //{ "run",	cmd_run },
+    {"q", cmd_quit},
+    {"quit", cmd_quit},
+    /* Please add more operations below. */
+    {NULL, NULL}};
+
+static const char *helpmenu[] = {
+    "[run] <job> <time> <priority>       ",
+    "[quit] Exit AUbatch                 ",
+    "[help] Print help menu              ",
+    /* Please add more menu options below */
+    NULL};
 
 int main(int argc, char *argv[])
 {
@@ -65,6 +91,14 @@ int main(int argc, char *argv[])
     job3.arrival_time = 2;
     job3.next = NULL;
 
+    //current pointer at first job
+    newjob = &job1;
+    submitJob(newjob);
+    newjob = &job2;
+    submitJob(newjob);
+    newjob = &job3;
+    submitJob(newjob);
+
     if (pthread_mutex_init(&submitted_mutex, NULL) != 0)
     {
         printf("\n mutex init has failed\n");
@@ -109,63 +143,34 @@ int main(int argc, char *argv[])
     while ((read = getline(&line, &len, stdin)) != -1)
     {
 
-        if (read > 0)
+        if (read > 1)
         {
-            printf("\n  read %zd chars from stdin, allocated %zd bytes for line : %s\n", read, len, line);
+            //printf("\n  read %zd chars from stdin, allocated %zd bytes for line : %s\n", read, len, line);
             //char s[] = line;
             char **word_array = NULL;
 
             size_t n = string_parser(line, &word_array);
 
-            for (size_t i = 0; i < n; i++)
-                puts(word_array[i]);
+            //this prints out the array
+            //for (size_t i = 0; i < n; i++)
+            //    puts(word_array[i]);
+
+            // take action on the command here: send to command subroutine
+            commandAction(n, &word_array);
 
             //after done using word_array
             for (size_t i = 0; i < n; i++)
-            free(word_array[i]);
+                free(word_array[i]);
             free(word_array);
         }
-
+        if (running_job > 0)
+        {
+            printf("job %d running", running_job->id);
+        }
         printf(">");
     }
 
     free(line); /* free memory allocated by getline */
-
-    //current pointer at first job
-    newjob = &job1;
-    //printf("calling submit for job1\n");
-    //pthread_mutex_lock(&submitted_mutex);
-    //printf("got lock for job1\n");
-    submitJob(newjob);
-    //printf("returned from submit for job1\n");
-    //pthread_cond_signal(&submitted_empty);
-    //printf("Submitted Queue after job 1:\n");
-    //printQueue(head_job_submitted);
-    //pthread_mutex_unlock(&submitted_mutex);
-
-    newjob = &job2;
-    //printf("calling submit for job2\n");
-    //pthread_mutex_lock(&submitted_mutex);
-    submitJob(newjob);
-    //pthread_cond_signal(&submitted_empty);
-    //printf("Submitted Queue after job 2:\n");
-    //printQueue(head_job_submitted);
-    //pthread_mutex_unlock(&submitted_mutex);
-
-    //policy = SJF;
-    //policyChange = 0;
-    //currentPolicy = policy;
-
-    newjob = &job3;
-    //pthread_mutex_lock(&submitted_mutex);
-    submitJob(newjob);
-    //pthread_cond_signal(&submitted_empty);
-    //printf("Submitted Queue after job 3:\n");
-    //printQueue(head_job_submitted);
-    //pthread_mutex_unlock(&submitted_mutex);
-
-    //printf("driver program sleep 30 seconds\n");
-    //sleep(30);
 
     //quit the thread
     //pthread_cond_signal(&scheduled_full);
@@ -186,11 +191,6 @@ int main(int argc, char *argv[])
 }
 
 /// functions start
-
-int splitInput(char *input, void *returnArray)
-{
-    return 0;
-}
 
 size_t string_parser(const char *input, char ***word_array)
 // from https://stackoverflow.com/questions/43015843/parsing-a-string-in-c-to-individual-words
@@ -238,4 +238,165 @@ size_t string_parser(const char *input, char ***word_array)
     }
 
     return n;
+}
+
+int commandAction(int n, char ***word_array)
+{
+    int i, result = 0;
+    for (i = 0; cmdtable[i].name; i++)
+    {
+        //printf("commandAction input: %s\n", *word_array[0]);
+        //printf("commandAction table: %s\n", cmdtable[i].name);
+        if (strcmp(*word_array[0], cmdtable[i].name) == 0)
+        {
+            //assert(cmdtable[i].func != NULL);
+            //printf("commandAction match! %s, %s\n", *word_array[0], cmdtable[i].name);
+            result = cmdtable[i].func(n, *word_array);
+        }
+    }
+    return result;
+}
+
+int cmd_helpmenu(int n, char **a)
+{
+    (void)n;
+    (void)a;
+    printf("cmd_helpmenu %s\n", a[0]);
+
+    showmenu("AUbatch help menu", helpmenu);
+    return 0;
+}
+/*
+ * Display menu information
+ */
+void showmenu(const char *name, const char *x[])
+{
+    int ct, half, i;
+
+    printf("\n");
+    printf("%s\n", name);
+
+    for (i = ct = 0; x[i]; i++)
+    {
+        ct++;
+    }
+    half = (ct + 1) / 2;
+
+    for (i = 0; i < half; i++)
+    {
+        printf("    %-36s", x[i]);
+        if (i + half < ct)
+        {
+            printf("%s", x[i + half]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
+/*
+ * The quit command.
+ */
+int cmd_quit(int nargs, char **args)
+{
+    int jobs_qty = submitted_size + scheduled_size;
+    if (running_job != NULL)
+        jobs_qty++;
+
+    if (jobs_qty == 0 || (nargs == 2 && (strcmp(args[1], "force") == 0 || strcmp(args[1], "f") == 0)))
+    {
+        printf("Quitting and terminating any running jobs\n");
+        cmd_queue_size(nargs, args);
+        pthread_cond_signal(&submitted_empty);
+        pthread_cond_signal(&scheduled_empty);
+        hardquit = 0;
+        statisticsCompleted();
+        //pthread_join(dispatch_tid1, returnval);
+        pthread_mutex_destroy(&submitted_mutex);
+        pthread_mutex_destroy(&scheduled_mutex);
+        pthread_mutex_destroy(&completed_mutex);
+        exit(0);
+    }
+    if (jobs_qty > 0)
+    {
+        printf("There are still jobs running. AUbatch not quitting.\n");
+        cmd_queue_size(nargs, args);
+        printf("Type \"quit force\" to force quit with jobs still running.\n");
+        return 0;
+    }
+    return 0;
+}
+
+int cmd_queue_size(int n, char **a)
+{
+    (void)n;
+    (void)a;
+    if (running_job != NULL)
+    {
+        printf("Current running job name: %s\n", running_job->name);
+    }
+    printf("Submitted queue size: %d\n", submitted_size);
+    printf("Scheduled queue size: %d\n", scheduled_size);
+    printf("Completed queue size: %d\n", completed_size);
+
+    printf("\n");
+    return 0;
+}
+
+int cmd_list_jobs(int n, char **a)
+{
+    (void)n;
+    (void)a;
+    printf("Total number of jobs in the queue:: %d\n", submitted_size + scheduled_size);
+    printf("Scheduling Policy: ");
+    if (currentPolicy == FCFS)
+        printf("FCFS-First Come First Served\n");
+    if (currentPolicy == SJF)
+        printf("SJF-Shortest Job First\n");
+    if (currentPolicy == Priority)
+        printf("Priority-Lowest Priority Jobs First\n");
+    printf("Name\tCPU_Time\tPri\tArrival_time\tProgress\n");
+    if (running_job != NULL)
+    {
+        printf("%s", running_job->name);
+        printf("\t%f", running_job->cpu_time);
+        printf("\t%d", running_job->priority);
+        printf("\t%f\tRunning\n", running_job->arrival_time);
+    }
+    print_queue_job_info(head_job_submitted);
+    print_queue_job_info(head_job_scheduled);
+    print_queue_job_info(head_job_completed);
+    printf("\n");
+    return 0;
+}
+
+int print_queue_job_info(struct Job *head)
+{
+    struct Job *current = head;
+    int count = 0;
+    //printf("Printing queue, current policy is %d\n", currentPolicy);
+    while (current != NULL)
+    {
+        printf("%s\t", current->name);
+        //printf("%d  ", current->id);
+        printf("%f\t", current->cpu_time);
+        printf("%d\t", current->priority);
+        printf("%f\t", current->arrival_time);
+        if (head == head_job_submitted)
+        {
+            printf("Submit Queue\n");
+        }
+        if (head == head_job_scheduled)
+        {
+            printf("Scheduled Queue\n");
+        }
+        if (head == head_job_completed)
+        {
+            printf("Completed Queue\n");
+        }
+        // Update current
+        current = current->next;
+        count++;
+    }
+    return 0;
 }

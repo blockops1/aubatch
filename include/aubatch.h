@@ -6,10 +6,20 @@
 #include "aubatch_scheduler.h"
 #include "aubatch_utilities.h"
 
+size_t string_parser(const char *, char ***);
+int commandAction(int, char ***);
+int cmd_helpmenu(int, char **);
+void showmenu(const char *, const char **);
+int cmd_quit(int , char **);
+int cmd_queue_size(int , char **);
+int cmd_list_jobs(int , char **);
+int print_queue_job_info(struct Job *);
+
 // global variables
 extern struct Job* head_job_submitted;
 extern struct Job* head_job_scheduled;
 extern struct Job* head_job_completed;
+extern struct Job* running_job;
 extern enum Policy currentPolicy;
 extern int policyChange;
 extern pthread_mutex_t submitted_mutex;
@@ -30,6 +40,7 @@ extern int completed_size;
 extern int hardquit;
 extern int softquit;
 extern float procTime;
+
 
 
 #endif 

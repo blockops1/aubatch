@@ -47,6 +47,7 @@ struct tParameter {
 struct Job* head_job_submitted;
 struct Job* head_job_scheduled;
 struct Job* head_job_completed;
+struct Job* running_job;
 enum Policy currentPolicy;
 int policyChange;
 pthread_mutex_t submitted_mutex;

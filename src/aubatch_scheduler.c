@@ -27,7 +27,7 @@ void *tRunningSchedule(void *received_parameters)
             pthread_cond_wait(&submitted_empty, &submitted_mutex); // wait until not empty
             if (hardquit == 0)
             {
-                printf("terminating schedule thread at point 1\n");
+                //printf("terminating schedule thread at point 1\n");
                 pthread_exit(NULL);
             }
         }
@@ -44,7 +44,7 @@ void *tRunningSchedule(void *received_parameters)
             pthread_cond_wait(&scheduled_full, &scheduled_mutex);
             if (hardquit == 0)
             {
-                printf("terminating schedule thread at point 2\n");
+                //printf("terminating schedule thread at point 2\n");
                 pthread_exit(NULL);
             }
         }
