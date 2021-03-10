@@ -70,8 +70,5 @@ int completed_buffer_size;
 int completed_size;
 int hardquit;
 int softquit;
-float procTime;
-
-
-
+time_t procTime;
 #endif 

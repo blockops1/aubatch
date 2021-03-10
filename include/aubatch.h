@@ -15,7 +15,6 @@ int cmd_queue_size(int , char **);
 int cmd_list_jobs(int , char **);
 int print_queue_job_info(struct Job *);
 int cmd_policy_change(int , char **);
-int cmd_run_job(int , char **);
 
 
 // global variables
@@ -42,8 +41,12 @@ extern int completed_buffer_size;
 extern int completed_size;
 extern int hardquit;
 extern int softquit;
-extern float procTime;
+extern time_t procTime;
 int global_job_id;
+int new_priority;
+float new_time;
+int valid;
+
 
 static struct
 {
@@ -63,8 +66,8 @@ static struct
     {"fcfs", cmd_policy_change},
     {"sjf", cmd_policy_change},
     {"priority", cmd_policy_change},
-    { "r",		cmd_run_job },
-    { "run",	cmd_run_job },
+    //{"r",		cmd_run_job },
+    //{"run",	cmd_run_job },
     {"q", cmd_quit},
     {"quit", cmd_quit},
     /* Please add more operations below. */

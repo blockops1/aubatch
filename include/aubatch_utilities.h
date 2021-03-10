@@ -37,6 +37,6 @@ extern int completed_buffer_size;
 extern int completed_size;
 extern int hardquit;
 extern int softquit;
-extern float procTime;
+extern time_t procTime;
 
 #endif

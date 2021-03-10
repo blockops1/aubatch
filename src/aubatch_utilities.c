@@ -26,7 +26,7 @@ int submitJob(struct Job *newjob)
     {
         head_job_submitted = newjob;
         submitted_size++;
-        //printf("was null, submit queue size: %d\n", submitted_size);
+        printf("was null, submit queue size: %d\n", submitted_size);
     }
     else
     {
@@ -38,10 +38,10 @@ int submitJob(struct Job *newjob)
         }
         current->next = newjob;
         submitted_size++;
-        //printf("found tail, submit queue size: %d\n", submitted_size);
+        printf("found tail, submit queue size: %d\n", submitted_size);
     }
-    printf("submit function:\n");
-    printQueue(head_job_submitted);
+    //printf("submit function:\n");
+    //printQueue(head_job_submitted);
     pthread_cond_signal(&submitted_empty);
     pthread_mutex_unlock(&submitted_mutex);
     return 0;
@@ -56,11 +56,11 @@ void *tDispatcher(void *received_parameters)
         if (scheduled_size <= 0)
         {
             //nothing in the submit buffer, just wait
-            printf("submit queue is empty\n");
+            //printf("submit queue is empty\n");
             pthread_cond_wait(&scheduled_empty, &scheduled_mutex); // wait until not empty
             if (hardquit == 0)
             {
-                printf("terminating dispatch thread at point 1\n");
+                //printf("terminating dispatch thread at point 1\n");
                 pthread_exit(NULL);
             }
         }
@@ -69,27 +69,27 @@ void *tDispatcher(void *received_parameters)
         pthread_cond_signal(&scheduled_full); //it is not full anymore
         pthread_mutex_unlock(&scheduled_mutex);
         // work the current job - get data and fill it out
-        printf("sending job %d to runJob\n", newjob->id);
+        //printf("sending job %d to runJob\n", newjob->id);
         runJob(&newjob);
-        printf("job %d back from runJob\n", newjob->id);
+        //printf("job %d back from runJob\n", newjob->id);
         // write to completed queue
         if (completed_size > completed_buffer_size)
         {
-            printf("completed queue is at max limit\n");
+            //printf("completed queue is at max limit\n");
             pthread_cond_wait(&completed_full, &completed_mutex);
             if (hardquit == 0)
             {
-                printf("terminating dispatch thread at point 2\n");
+                //rintf("terminating dispatch thread at point 2\n");
                 pthread_exit(NULL);
             }
         }
-        printf("sending job %d to moveToCompleted\n", newjob->id);
+        //printf("sending job %d to moveToCompleted\n", newjob->id);
         moveToCompleted(&newjob);
-        printf("job %d back from moveToCompleted\n", newjob->id);
+        //printf("job %d back from moveToCompleted\n", newjob->id);
     }
     if (hardquit == 0)
     {
-        printf("terminating dispatch thread at end\n");
+        //printf("terminating dispatch thread at end\n");
         pthread_exit(NULL);
     }
     return 0;
@@ -143,51 +143,49 @@ int runJob(struct Job **newjob)
     // job runs until finished. Keeps a clock and counts every second?
     if (*newjob == NULL)
         return 1;
-    printf("new job arrival time: %f\n", (*newjob)->arrival_time);
+    //printf("new job arrival time: %f\n", (*newjob)->arrival_time);
     float wait = (*newjob)->arrival_time - process_time();
-    printf("wait time %f\n", wait);
+    //printf("wait time %f\n", wait);
     if (wait > 0)
     {
         //printf("Waiting to run job id: %d waiting for %f seconds until job arrival time - cpu idle\n", (*newjob)->id, wait);
         running_job = &waiting_job;
-        sleep(wait - wait/10);
+        sleep(wait);
         running_job = NULL;
     }
-    while ((*newjob)->arrival_time > process_time())
-        ;
+    //while ((*newjob)->arrival_time > process_time())
+    //    ;
     (*newjob)->starting_time = process_time();
-    //printf("");
-    //char *id;
+    //char *id = NULL;
     //sprintf(id, "%d", (*newjob)->id);
     //char starting_time[17];
     //sprintf(starting_time, "%f", (*newjob)->starting_time);
-    //char *cpu_time;
-    //cpu_time = NULL;
-    //sprintf(cpu_time, "%f", (*newjob)->cpu_time);
-    //printf("%s", cpu_time);
+    char cpu_time[20] = "";
+    sprintf(cpu_time, "%f", (*newjob)->cpu_time);
+    printf("cpu time string is %s\n", cpu_time);
     //printf("./workprogram %s %s %s\n", id, starting_time, cpu_time);
-    //printf("Running job id: %d waiting for %d seconds while running job - cpu working\n", (*newjob)->id, (*newjob)->cpu_time);
+    printf("Running job id: %d waiting for %f seconds while running job - cpu working\n", (*newjob)->id, (*newjob)->cpu_time);
     //pid_t parent = getpid();
-   //pid_t pid = fork();
-    //if (pid == -1)
-    //{
-    //    printf("error, failed to fork()");
-    //}
-    //else if (pid > 0)
-    //{
-    //    int status;
-    //    running_job = *newjob;
-    //    waitpid(pid, &status, 0);
-    //    running_job = NULL;
-    //}
-    //else
-    //{
+    pid_t pid = fork();
+    if (pid == -1)
+    {
+        printf("error, failed to fork()");
+    }
+    else if (pid > 0)
+    {
+        int status;
+        running_job = *newjob;
+        waitpid(pid, &status, 0);
+        running_job = NULL;
+    }
+    else
+    {
         // we are the child
-    //    char *args[] = {"./work_program", cpu_time, NULL};
-    //    execv(args[0], args);
-    //    _exit(EXIT_FAILURE); // exec never returns
-    //}
-    sleep((*newjob)->cpu_time);
+        char *args[] = {"./work_program", cpu_time, NULL};
+        execv(args[0], args);
+        _exit(EXIT_FAILURE); // exec never returns
+    }
+    //sleep((*newjob)->cpu_time);
     (*newjob)->finish_time = process_time();
     return 0;
 }
@@ -306,7 +304,7 @@ int statisticsCompleted()
 float process_time()
 {
     // returns time since start of system running
-    float time_now = (clock() - procTime) / CLOCKS_PER_SEC;
+    float time_now = time(NULL) - procTime;
     printf("time now is %f\n", time_now);
     return time_now;
 }
