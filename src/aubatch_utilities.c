@@ -19,14 +19,14 @@ int submitJob(struct Job *newjob)
     pthread_mutex_lock(&submitted_mutex);
     if (submitted_size >= submitted_buffer_size)
     {
-        printf("submitted queue is at max limit\n");
+        //printf("submitted queue is at max limit\n");
         pthread_cond_wait(&submitted_full, &submitted_mutex);
     }
     if (head_job_submitted == NULL)
     {
         head_job_submitted = newjob;
         submitted_size++;
-        printf("was null, submit queue size: %d\n", submitted_size);
+        //printf("was null, submit queue size: %d\n", submitted_size);
     }
     else
     {
@@ -38,7 +38,7 @@ int submitJob(struct Job *newjob)
         }
         current->next = newjob;
         submitted_size++;
-        printf("found tail, submit queue size: %d\n", submitted_size);
+        //printf("found tail, submit queue size: %d\n", submitted_size);
     }
     //printf("submit function:\n");
     //printQueue(head_job_submitted);
@@ -48,6 +48,7 @@ int submitJob(struct Job *newjob)
 }
 
 void *tDispatcher(void *received_parameters)
+// This is the dispatcher thread. It looks for jobs in the scheduler queue and runs them.
 {
     struct Job *newjob = NULL;
     while (hardquit != 0)
@@ -55,8 +56,8 @@ void *tDispatcher(void *received_parameters)
         pthread_mutex_lock(&scheduled_mutex);
         if (scheduled_size <= 0)
         {
-            //nothing in the submit buffer, just wait
-            //printf("submit queue is empty\n");
+            //nothing in the scheduled buffer, just wait
+            //printf("scheduled queue is empty\n");
             pthread_cond_wait(&scheduled_empty, &scheduled_mutex); // wait until not empty
             if (hardquit == 0)
             {
@@ -162,9 +163,9 @@ int runJob(struct Job **newjob)
     //sprintf(starting_time, "%f", (*newjob)->starting_time);
     char cpu_time[20] = "";
     sprintf(cpu_time, "%f", (*newjob)->cpu_time);
-    printf("cpu time string is %s\n", cpu_time);
+    //printf("cpu time string is %s\n", cpu_time);
     //printf("./workprogram %s %s %s\n", id, starting_time, cpu_time);
-    printf("Running job id: %d waiting for %f seconds while running job - cpu working\n", (*newjob)->id, (*newjob)->cpu_time);
+    //printf("Running job id: %d waiting for %f seconds while running job - cpu working\n", (*newjob)->id, (*newjob)->cpu_time);
     //pid_t parent = getpid();
     pid_t pid = fork();
     if (pid == -1)
@@ -197,7 +198,7 @@ int moveToCompleted(struct Job **newjob)
     pthread_mutex_lock(&completed_mutex);
     if (completed_size >= completed_buffer_size)
     {
-        printf("completed queue is at max limit\n");
+        //printf("completed queue is at max limit\n");
         pthread_cond_wait(&completed_full, &completed_mutex);
     }
     if (head_job_completed == NULL)
@@ -231,16 +232,16 @@ int printQueue(struct Job *head)
     printf("Printing queue, current policy is %d\n", currentPolicy);
     while (current != NULL)
     {
-        printf("ID: %d\n", current->id);
-        printf("Name: %s\n", current->name);
-        printf("Priority: %d\n", current->priority);
-        printf("CPU time: %f\n", current->cpu_time);
-        printf("Arrival Time: %f\n", current->arrival_time);
-        printf("Starting time: %f\n", current->starting_time);
-        printf("Finish Time: %f\n", current->finish_time);
+        printf("ID: %d  ", current->id);
+        printf("Name: %s  ", current->name);
+        printf("Priority: %d  ", current->priority);
+        printf("CPU time: %f  ", current->cpu_time);
+        printf("Arrival Time: %f  ", current->arrival_time);
+        printf("Starting time: %f  ", current->starting_time);
+        printf("Finish Time: %f  ", current->finish_time);
         if (current->next != NULL)
         {
-            printf("Next Job: %d\n\n", current->next->id);
+            printf("Next Job: %d\n", current->next->id);
         }
         else
         {
@@ -259,7 +260,7 @@ int statisticsCompleted()
     struct Job *current = NULL;
     if (head_job_completed == NULL)
     {
-        printf("No jobs have been completed\n");
+        printf("\nNo jobs have been completed\n");
         return 0;
     }
     current = head_job_completed;
@@ -283,7 +284,7 @@ int statisticsCompleted()
         waitingTime = current->starting_time - current->arrival_time;
         totalWaitingTime += waitingTime;
         totalCPUTime += current->cpu_time;
-        printf("id: %d cpu time:%f arrival: %f start: %f finish %f wait:%f\n", current->id, current->cpu_time, current->arrival_time, current->starting_time, current->finish_time, waitingTime);
+        printf("name: %s cpu time:%f arrival: %f start: %f finish %f wait:%f\n", current->name, current->cpu_time, current->arrival_time, current->starting_time, current->finish_time, waitingTime);
         current = current->next;
     }
     pthread_mutex_unlock(&completed_mutex);
@@ -305,6 +306,6 @@ float process_time()
 {
     // returns time since start of system running
     float time_now = time(NULL) - procTime;
-    printf("time now is %f\n", time_now);
+    //printf("time now is %f\n", time_now);
     return time_now;
 }

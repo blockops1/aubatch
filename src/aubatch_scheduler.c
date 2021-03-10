@@ -33,7 +33,7 @@ void *tRunningSchedule(void *received_parameters)
         }
         // read from submit queue and get pointer to item at head of queue
         submitSchedule(&newjob);
-        print_job(newjob);
+        //print_job(newjob);
         pthread_cond_signal(&submitted_full); //it is not full anymore
         pthread_mutex_unlock(&submitted_mutex);
 
@@ -41,7 +41,7 @@ void *tRunningSchedule(void *received_parameters)
         pthread_mutex_lock(&scheduled_mutex);
         if (scheduled_size > scheduled_buffer_size)
         {
-            printf("scheduled queue is at max limit\n");
+            //printf("scheduled queue is at max limit\n");
             pthread_cond_wait(&scheduled_full, &scheduled_mutex);
             if (hardquit == 0)
             {

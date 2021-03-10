@@ -24,19 +24,16 @@ int main(int argc, char *argv[])
     enum Policy policy = Priority;
     currentPolicy = policy;
     policyChange = 1;
-    submitted_buffer_size = 100;
+    submitted_buffer_size = MAXJOBS;
     submitted_size = 0;
-    scheduled_buffer_size = 1;
+    scheduled_buffer_size = MAXJOBS;
     scheduled_size = 0;
-    completed_buffer_size = 100000;
+    completed_buffer_size = MAXJOBS;
     completed_size = 0;
     hardquit = 1;
     softquit = 1;
     procTime = time(NULL);
     global_job_id = 0;
-    const int MAXJOBS = 500;
-    struct Job jobs[MAXJOBS];
-    char jobnames[20][MAXJOBS];
 
     if (pthread_mutex_init(&submitted_mutex, NULL) != 0)
     {
@@ -91,65 +88,11 @@ int main(int argc, char *argv[])
             size_t n = string_parser(line, &word_array);
 
             //this prints out the array
-            for (size_t i = 0; i < n; i++)
-                puts(word_array[i]);
+            //for (size_t i = 0; i < n; i++)
+            //    puts(word_array[i]);
 
             // take action on the command here: send to command subroutine
             commandAction(n, &word_array);
-            // create job section - can't be done in ephemeral function
-            //printf("back from commandAction\n");
-            if ((strcmp(word_array[0], "run") == 0) || (strcmp(word_array[0], "r") == 0))
-            {
-                //printf("Entering run area\n");
-                valid = 0;
-                new_time = 0;
-                new_priority = 0;
-                if (n < 3 || n > 4)
-                {
-                    printf("incorrect input. Usage: run <job> <time> <pri>\n");
-                    valid = 1;
-                }
-                if (n == 4)
-                {
-                    new_priority = atoi(word_array[3]);
-                    if (new_priority < 0)
-                    {
-                        printf("<priority> must be a non-negative number\n");
-                        valid = 1;
-                    }
-                }
-                if (valid == 0)
-                {
-                    new_time = atof(word_array[2]);
-                }
-                if (new_time < 0)
-                {
-                    printf("<time> must be a positive number\n");
-                    valid = 1;
-                }
-                //printf("valid is %d\n", valid);
-                // if valid == 0 create a new job
-                if (valid == 0)
-                {
-                    struct Job *newjob;
-                    //char name[sizeof(word_array[1])];
-                    //strcpy(name, word_array[1]);
-                    ++global_job_id;
-                    strcpy(jobnames[global_job_id], word_array[1]);
-                    jobs[global_job_id].id = global_job_id;
-                    jobs[global_job_id].name = jobnames[global_job_id];
-                    jobs[global_job_id].priority = new_priority;
-                    jobs[global_job_id].cpu_time = new_time;
-                    jobs[global_job_id].arrival_time = process_time();
-                    jobs[global_job_id].next = NULL;
-
-                    //current pointer at first job
-                    newjob = &jobs[global_job_id];
-                    print_job(newjob);
-                    //printf("job %d arrived at about %f\n", job1.id, job1.arrival_time);
-                    submitJob(newjob);
-                }
-            }
 
             //after done using word_array
             for (size_t i = 0; i < n; i++)
@@ -284,8 +227,15 @@ int cmd_quit(int nargs, char **args)
 
     if (jobs_qty == 0 || (nargs == 2 && (strcmp(args[1], "force") == 0 || strcmp(args[1], "f") == 0)))
     {
-        printf("Quitting and terminating any running jobs\n");
+        if (jobs_qty == 0) {
+            printf("No jobs in queue, no jobs running, quitting gracefully.\n");
+        } else {
+        printf("Quitting and terminating queued and running jobs\n");
         cmd_queue_size(nargs, args);
+        //print_job(running_job);
+        printf("currently running job \nname: %s priority: %d cpu_time: %f starting_time: %f\n", running_job->name, running_job->priority, running_job->cpu_time, running_job->starting_time);
+        }
+        
         hardquit = 0;
         pthread_cond_signal(&submitted_empty);
         pthread_cond_signal(&scheduled_empty);
@@ -302,9 +252,10 @@ int cmd_quit(int nargs, char **args)
     }
     if (jobs_qty > 0)
     {
-        printf("There are still jobs running. AUbatch not quitting.\n");
+        printf("There are still jobs running. AUbatch will not quit while jobs are queued and running.\nTry again later.\n");
         cmd_queue_size(nargs, args);
-        printf("Type \"quit force\" to force quit with jobs still running.\n");
+        softquit = 0;
+        printf("Type \"quit force\" or \"q f\" to force quit with jobs still running.\n");
         return 0;
     }
     return 0;
@@ -319,11 +270,11 @@ int cmd_queue_size(int n, char **a)
         printf("Current running job name: %s\n", running_job->name);
     }
     printf("Submitted queue size: %d\n", submitted_size);
-    printQueue(head_job_submitted);
+    //printQueue(head_job_submitted);
     printf("Scheduled queue size: %d\n", scheduled_size);
-    printQueue(head_job_scheduled);
+    //printQueue(head_job_scheduled);
     printf("Completed queue size: %d\n", completed_size);
-    printQueue(head_job_completed);
+    //printQueue(head_job_completed);
 
     printf("\n");
     return 0;
@@ -427,6 +378,59 @@ int cmd_policy_change(int nargs, char **args)
             printf("Changing Policy to Priority\n");
         }
         policyChange = 0;
+    }
+    return 0;
+}
+
+int cmd_run_job(int nargs, char **args)
+{
+    //printf("back from commandAction\n");
+    if ((strcmp(args[0], "run") == 0) || (strcmp(args[0], "r") == 0))
+    {
+        //printf("Entering run area\n");
+        //valid = 0;
+        new_time = 0;
+        new_priority = 0;
+        if (nargs < 3 || nargs > 4)
+        {
+            printf("incorrect input. Usage: run <job> <time> <pri>\n");
+            return 1;
+        }
+        if (nargs == 4)
+        {
+            new_priority = atoi(args[3]);
+            if (new_priority < 0)
+            {
+                printf("<priority> must be a non-negative number\n");
+                return 1;
+            }
+        }
+        new_time = atof(args[2]);
+        if (new_time < 0)
+        {
+            printf("<time> must be a positive number\n");
+            return 1;
+        }
+        //printf("valid is %d\n", valid);
+        // if valid == 0 create a new job
+
+        struct Job *newjob;
+        //char name[sizeof(word_array[1])];
+        //strcpy(name, word_array[1]);
+        ++global_job_id;
+        strcpy(jobnames[global_job_id], args[1]);
+        jobs[global_job_id].id = global_job_id;
+        jobs[global_job_id].name = jobnames[global_job_id];
+        jobs[global_job_id].priority = new_priority;
+        jobs[global_job_id].cpu_time = new_time;
+        jobs[global_job_id].arrival_time = process_time();
+        jobs[global_job_id].next = NULL;
+
+        //current pointer at first job
+        newjob = &jobs[global_job_id];
+        //print_job(newjob);
+        //printf("job %d arrived at about %f\n", job1.id, job1.arrival_time);
+        submitJob(newjob);
     }
     return 0;
 }
