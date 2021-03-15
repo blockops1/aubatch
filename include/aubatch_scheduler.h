@@ -17,6 +17,7 @@ int runningSortedJobInsert(struct Job **, struct Job *, enum Policy);
 int printQueue(); 
 int print_job(struct Job *);
 float waiting_time(struct Job **, struct Job **);
+float time_left(struct Job **);
 
 
 

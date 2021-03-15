@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
     printf("\nType 'help' to find more about AUbatch commands.\n");
     printf(">");
 
-    while ((read = getline(&line, &len, stdin)) != -1)
+    while (softquit == 1 && (read = getline(&line, &len, stdin)) != -1)
     {
 
         if (read > 1)
@@ -107,22 +107,40 @@ int main(int argc, char *argv[])
     }
 
     free(line); /* free memory allocated by getline */
+    // if softquit wait for queues and running to stop
+    int loop_counter = 0;
+    while (running_job != NULL || scheduled_size > 0 || submitted_size > 0)
+    {
+        float time_to_go = time_left(&head_job_scheduled);
+        if (loop_counter < 2)
+        {
+            printf("\nQuitting when no jobs left to run.\n");
+            printf("Running job is %s, queue size is %d\n", running_job->name, scheduled_size);
+            printf("Approximate time left is %f\n", time_to_go + running_job->cpu_time);
+        }
+        sleep(time_to_go);
+        loop_counter++;
+    }
 
-    //quit the thread
-    //pthread_cond_signal(&scheduled_full);
-    pthread_cond_signal(&submitted_empty);
+    //quit the program
     hardquit = 0;
-    pthread_join(schedule_tid1, returnval);
-    //pthread_join(dispatch_tid1, returnval);
+    pthread_cond_signal(&submitted_empty);
+    pthread_cond_signal(&scheduled_empty);
+    pthread_cond_signal(&completed_empty);
+    pthread_cond_signal(&submitted_full);
+    pthread_cond_signal(&scheduled_full);
+    pthread_cond_signal(&scheduled_empty);
+    //statisticsCompleted();
+    pthread_join(dispatch_tid1, returnval);
     pthread_mutex_destroy(&submitted_mutex);
     pthread_mutex_destroy(&scheduled_mutex);
     pthread_mutex_destroy(&completed_mutex);
-    printf("\nSubmitted Queue:\n");
-    printQueue(head_job_submitted);
-    printf("\nScheduled Queue:\n");
-    printQueue(head_job_scheduled);
-    printf("\nCompleted Queue:\n");
-    printQueue(head_job_completed);
+    //printf("\nSubmitted Queue:\n");
+    //printQueue(head_job_submitted);
+    //printf("\nScheduled Queue:\n");
+    //printQueue(head_job_scheduled);
+    //printf("\nCompleted Queue:\n");
+    //printQueue(head_job_completed);
     statisticsCompleted();
 }
 
@@ -227,15 +245,18 @@ int cmd_quit(int nargs, char **args)
 
     if (jobs_qty == 0 || (nargs == 2 && (strcmp(args[1], "force") == 0 || strcmp(args[1], "f") == 0)))
     {
-        if (jobs_qty == 0) {
+        if (jobs_qty == 0)
+        {
             printf("No jobs in queue, no jobs running, quitting gracefully.\n");
-        } else {
-        printf("Quitting and terminating queued and running jobs\n");
-        cmd_queue_size(nargs, args);
-        //print_job(running_job);
-        printf("currently running job \nname: %s priority: %d cpu_time: %f starting_time: %f\n", running_job->name, running_job->priority, running_job->cpu_time, running_job->starting_time);
         }
-        
+        else
+        {
+            printf("Quitting and terminating queued and running jobs\n");
+            cmd_queue_size(nargs, args);
+            //print_job(running_job);
+            printf("currently running job \nname: %s priority: %d cpu_time: %f starting_time: %f\n", running_job->name, running_job->priority, running_job->cpu_time, running_job->starting_time);
+        }
+
         hardquit = 0;
         pthread_cond_signal(&submitted_empty);
         pthread_cond_signal(&scheduled_empty);
@@ -252,10 +273,10 @@ int cmd_quit(int nargs, char **args)
     }
     if (jobs_qty > 0)
     {
-        printf("There are still jobs running. AUbatch will not quit while jobs are queued and running.\nTry again later.\n");
-        cmd_queue_size(nargs, args);
+        printf("There are still jobs running. AUbatch will quit when jobs are done running.\n");
+        //cmd_queue_size(nargs, args);
         softquit = 0;
-        printf("Type \"quit force\" or \"q f\" to force quit with jobs still running.\n");
+        printf("Next time can type \"quit force\" or \"q f\" to force quit with jobs still running.\n");
         return 0;
     }
     return 0;
@@ -284,7 +305,7 @@ int cmd_list_jobs(int n, char **a)
 {
     (void)n;
     (void)a;
-    printf("Total number of jobs in the queue:: %d\n", submitted_size + scheduled_size);
+    printf("Total number of jobs in the queue: %d\n", submitted_size + scheduled_size);
     printf("Scheduling Policy: ");
     if (currentPolicy == FCFS)
         printf("FCFS-First Come First Served\n");
@@ -302,7 +323,7 @@ int cmd_list_jobs(int n, char **a)
     }
     print_queue_job_info(head_job_submitted);
     print_queue_job_info(head_job_scheduled);
-    print_queue_job_info(head_job_completed);
+    //print_queue_job_info(head_job_completed);
     printf("\n");
     return 0;
 }
@@ -380,7 +401,6 @@ int cmd_policy_change(int nargs, char **args)
         pthread_mutex_lock(&scheduled_mutex);
         runningReSortJobs(&head_job_scheduled, currentPolicy);
         pthread_mutex_unlock(&scheduled_mutex);
-
     }
     return 0;
 }
@@ -435,15 +455,20 @@ int cmd_run_job(int nargs, char **args)
         //printf("job %d arrived at about %f\n", job1.id, job1.arrival_time);
         submitJob(newjob);
         printf("Job %s was submitted.\n", newjob->name);
+        printf("Total number of jobs in the queue: %d\n", submitted_size + scheduled_size);
         float wait_time = waiting_time(&head_job_submitted, &newjob) + waiting_time(&head_job_scheduled, &newjob);
-        if (running_job != NULL) {
-            wait_time +=  running_job->cpu_time;
+        if (running_job != NULL)
+        {
+            wait_time += running_job->cpu_time;
         }
         printf("Expected waiting time: %f seconds.\n", wait_time);
         printf("Scheduling Policy: ");
-        if (currentPolicy == FCFS) printf("FCFS.\n");
-        if (currentPolicy == SJF) printf("SJF.\n");
-        if (currentPolicy == Priority) printf("Priority.\n");
+        if (currentPolicy == FCFS)
+            printf("FCFS.\n");
+        if (currentPolicy == SJF)
+            printf("SJF.\n");
+        if (currentPolicy == Priority)
+            printf("Priority.\n");
     }
     return 0;
 }

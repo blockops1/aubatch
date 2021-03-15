@@ -127,8 +127,8 @@ int runningReSortJobs(struct Job **head_ref, enum Policy policy)
         // have to set next to NULL or get all sorts of weird loops
         current->next = NULL;
         // insert current in sorted linked list
-        printf("inserting job name %s\n", current->name);
-        sleep(2);
+        //printf("inserting job name %s\n", current->name);
+        //sleep(2);
         runningSortedJobInsert(&sorted, current, policy);
         current = next;
     }
@@ -228,6 +228,22 @@ float waiting_time(struct Job **head_ref, struct Job **newjob) {
         if (currentPolicy == FCFS && (*newjob)->arrival_time < current->arrival_time) break;
         if (currentPolicy == SJF && (*newjob)->cpu_time < current->cpu_time) break;
         if (currentPolicy == Priority && (*newjob)->priority < current->priority) break;
+        sum += current->cpu_time;
+        //printf("waiting time sum: %f", sum);
+        current = current->next;
+    }
+    return sum;
+}
+
+float time_left(struct Job **head_ref) {
+    // traverse queue and find job, add up cpu_time, return time
+    if (*head_ref == NULL) {
+        //printf("head ref is null in waiting time");
+        return 0;
+    }
+    float sum = 0;
+    struct Job *current = *head_ref;
+    while (current != NULL) {
         sum += current->cpu_time;
         //printf("waiting time sum: %f", sum);
         current = current->next;
