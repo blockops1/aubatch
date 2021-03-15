@@ -13,6 +13,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <time.h>
+#include <sys/time.h>
 #include "aubatch.h"
 
 int main(int argc, char *argv[])
@@ -32,8 +33,10 @@ int main(int argc, char *argv[])
     completed_size = 0;
     hardquit = 1;
     softquit = 1;
-    procTime = time(NULL);
+    //procTime = clock();
     global_job_id = 0;
+
+    gettimeofday(&tv1, NULL);
 
     if (pthread_mutex_init(&submitted_mutex, NULL) != 0)
     {
@@ -112,7 +115,7 @@ int main(int argc, char *argv[])
     while (running_job != NULL || scheduled_size > 0 || submitted_size > 0)
     {
         float time_to_go = time_left(&head_job_scheduled);
-        if (loop_counter < 2)
+        if (loop_counter < 1)
         {
             printf("\nQuitting when no jobs left to run.\n");
             printf("Running job is %s, queue size is %d\n", running_job->name, scheduled_size);
@@ -412,8 +415,8 @@ int cmd_run_job(int nargs, char **args)
     {
         //printf("Entering run area\n");
         //valid = 0;
-        new_time = 0;
-        new_priority = 0;
+        float new_time = 0;
+        int new_priority = 0;
         if (nargs < 3 || nargs > 4)
         {
             printf("incorrect input. Usage: run <job> <time> <pri>\n");
@@ -469,6 +472,79 @@ int cmd_run_job(int nargs, char **args)
             printf("SJF.\n");
         if (currentPolicy == Priority)
             printf("Priority.\n");
+    }
+    return 0;
+}
+
+int cmd_test_benchmark(int nargs, char **args) {
+    // generate jobs then submit them based on parameters
+    // test <benchmark> <policy> <num_of_jobs> <priority_levels>
+    //      <min_CPU_time> <max_CPU_time>
+    int valid = 0;
+    enum Policy policy_number = Invalid;
+    int num_of_jobs = 0;
+    //int priority_low = 0;
+    int priority_high = 0;
+    float min_cpu_time = 0;
+    float max_cpu_time = 0;
+    if (nargs != 7) {
+        printf("Incorrect command. Format is:\n");
+        printf("test <benchmark> <policy> <num_of_jobs> <priority_levels> <min_CPU_time> <max_CPU_time>\n");
+        return -1;
+    }
+    if (strlen(args[1]) > 20) {
+        printf("<benchmark> must be less than 20 characters.\n");
+        valid = 1;
+    }
+    num_of_jobs = atoi(args[3]);
+    if (num_of_jobs < 1 || num_of_jobs > MAXJOBS) {
+        printf("Number of jobs must be a positive integer less than %d.\n", MAXJOBS);
+        valid = 1;
+    }
+    priority_high = atoi(args[4]);
+    if (priority_high < 0) {
+        printf("Priority levels must be a non-negative integer.\n");
+        valid = 1;
+    }
+    min_cpu_time = atof(args[5]);
+    max_cpu_time = atof(args[6]);
+    if (min_cpu_time <= 0 || max_cpu_time <= 0 || min_cpu_time > max_cpu_time) {
+        printf("CPU time must be greater than 0, and max CPU time must not be less than min CPU time.\n");
+        valid = 1;
+    }
+    if(strcasecmp("fcfs", args[2]) == 0) policy_number = FCFS;
+    if(strcasecmp("sjf", args[2]) == 0) policy_number = SJF;
+    if(strcasecmp("priority", args[2]) == 0) policy_number = Priority;
+    if (policy_number == Invalid) {
+        printf("Policy must be one of: fcfs, sjf, priority.\n");
+        valid = 1;
+    }
+    if (valid != 0) {
+        printf("Incorrect command. Format is:\n");
+        printf("test <benchmark> <policy> <num_of_jobs> <priority_levels> <min_CPU_time> <max_CPU_time>\n");
+        return -1;
+    }
+    // set policy
+    currentPolicy = policy_number;
+    float time_increment = (max_cpu_time - min_cpu_time)/10;
+    for (int i = 0; i < num_of_jobs; i++) {
+        // call cmd_run_job with loop for all the jobs
+        struct Job *newjob;
+        ++global_job_id;
+        strcpy(jobnames[global_job_id], args[1]);
+        jobs[global_job_id].id = global_job_id;
+        jobs[global_job_id].name = jobnames[global_job_id];
+        jobs[global_job_id].priority = i % priority_high;
+        jobs[global_job_id].cpu_time = min_cpu_time + (time_increment * (i % 11));
+        jobs[global_job_id].arrival_time = process_time();
+        jobs[global_job_id].next = NULL;
+
+        //current pointer at first job
+        newjob = &jobs[global_job_id];
+        print_job(newjob);
+        //sleep(1);
+        //printf("job %d arrived at about %f\n", job1.id, job1.arrival_time);
+        submitJob(newjob);
     }
     return 0;
 }

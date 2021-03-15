@@ -9,7 +9,7 @@ int runJob(struct Job**);
 int submitDispatch(struct Job **);
 int moveToCompleted(struct Job**);
 int statisticsCompleted();
-float process_time();
+double process_time();
 
 //int printQueue(); 
 
@@ -37,6 +37,6 @@ extern int completed_buffer_size;
 extern int completed_size;
 extern int hardquit;
 extern int softquit;
-extern time_t procTime;
+//extern clock_t procTime;
 
 #endif

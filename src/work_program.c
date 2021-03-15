@@ -5,11 +5,6 @@
 #include<unistd.h> 
   
 int main(int argc, char *argv[]){ 
-    //printf("Running program: ");
-    //printf("job id:%s ", argv[1]);
-    //printf(" starting time:%f ", argv[2]);
-    //printf(" running time:%s ", argv[3]);
-    //printf("\n"); 
-    sleep(atof(argv[1]));
+    usleep((double)atof(argv[1]) * 1000000);
     return 0; 
 } 

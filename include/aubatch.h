@@ -16,6 +16,7 @@ int cmd_list_jobs(int , char **);
 int print_queue_job_info(struct Job *);
 int cmd_policy_change(int , char **);
 int cmd_run_job(int , char **);
+int cmd_test_benchmark(int, char **);
 
 
 // global variables
@@ -42,10 +43,10 @@ extern int completed_buffer_size;
 extern int completed_size;
 extern int hardquit;
 extern int softquit;
-extern time_t procTime;
+//extern clock_t procTime;
 int global_job_id;
-int new_priority;
-float new_time;
+//int new_priority;
+//float new_time;
 int valid;
 const int MAXJOBS = 500;
 struct Job jobs[500];
@@ -74,6 +75,7 @@ static struct
     {"run",	cmd_run_job },
     {"q", cmd_quit},
     {"quit", cmd_quit},
+    {"test", cmd_test_benchmark},
     /* Please add more operations below. */
     {NULL, NULL}};
 

@@ -7,6 +7,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <sys/time.h>
 
 #include "aubatch_utilities.h"
 struct Job waiting_job = {0, "waiting", 0, 0, 0, 0, 0, NULL};
@@ -149,7 +150,7 @@ int runJob(struct Job **newjob)
     //printf("wait time %f\n", wait);
     if (wait > 0)
     {
-        //printf("Waiting to run job id: %d waiting for %f seconds until job arrival time - cpu idle\n", (*newjob)->id, wait);
+        printf("Waiting to run job id: %d waiting for %f seconds until job arrival time - cpu idle\n", (*newjob)->id, wait);
         running_job = &waiting_job;
         sleep(wait);
         running_job = NULL;
@@ -176,8 +177,11 @@ int runJob(struct Job **newjob)
     {
         int status;
         running_job = *newjob;
+        //printf("process time before waitpid %f\n", process_time());
         waitpid(pid, &status, 0);
+        //printf("process time after waitpid %f\n", process_time());
         running_job = NULL;
+        (*newjob)->finish_time = process_time();
     }
     else
     {
@@ -187,7 +191,7 @@ int runJob(struct Job **newjob)
         _exit(EXIT_FAILURE); // exec never returns
     }
     //sleep((*newjob)->cpu_time);
-    (*newjob)->finish_time = process_time();
+    //(*newjob)->finish_time = process_time();
     return 0;
 }
 
@@ -267,15 +271,15 @@ int statisticsCompleted()
     current = head_job_completed;
     pthread_mutex_lock(&completed_mutex);
     int completed = completed_size;
-    float totalTurnaroundTime = 0;
-    float totalCPUTime = 0;
-    float waitingTime = 0;
-    float totalWaitingTime = 0;
-    float turnaroundTime = 0;
-    float avgTurnaroundTime = 0;
-    float avgCPUTime = 0;
-    float avgWaitingTime = 0;
-    float totalThroughput = 0;
+    double totalTurnaroundTime = 0;
+    double totalCPUTime = 0;
+    double waitingTime = 0;
+    double totalWaitingTime = 0;
+    double turnaroundTime = 0;
+    double avgTurnaroundTime = 0;
+    double avgCPUTime = 0;
+    double avgWaitingTime = 0;
+    double totalThroughput = 0;
     //traverse to tail gathering statistics
     printf("Individual Job Performance Report\n");
     while (current != NULL)
@@ -285,7 +289,7 @@ int statisticsCompleted()
         waitingTime = current->starting_time - current->arrival_time;
         totalWaitingTime += waitingTime;
         totalCPUTime += current->cpu_time;
-        printf("name: %s cpu time:%f arrival: %f start: %f finish %f wait:%f\n", current->name, current->cpu_time, current->arrival_time, current->starting_time, current->finish_time, waitingTime);
+        printf("name: %s priority: %d cpu time: %f arrival: %f start: %f finish %f wait:%f\n", current->name, current->priority, current->cpu_time, current->arrival_time, current->starting_time, current->finish_time, waitingTime);
         current = current->next;
     }
     pthread_mutex_unlock(&completed_mutex);
@@ -303,10 +307,12 @@ int statisticsCompleted()
     return 0;
 }
 
-float process_time()
+double process_time()
 {
     // returns time since start of system running
-    float time_now = time(NULL) - procTime;
+    gettimeofday(&tv2, NULL);
+    double time_now = (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
+         (double) (tv2.tv_sec - tv1.tv_sec);
     //printf("time now is %f\n", time_now);
     return time_now;
 }

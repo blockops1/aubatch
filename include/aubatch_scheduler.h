@@ -16,8 +16,8 @@ int runningReSortJobs(struct Job**, enum Policy);
 int runningSortedJobInsert(struct Job **, struct Job *, enum Policy);
 int printQueue(); 
 int print_job(struct Job *);
-float waiting_time(struct Job **, struct Job **);
-float time_left(struct Job **);
+double waiting_time(struct Job **, struct Job **);
+double time_left(struct Job **);
 
 
 
@@ -26,10 +26,10 @@ struct Job {
     int id;
     char* name;
     int priority; // 0 to 7, with lower numbers being higher priority
-    float cpu_time; // this is measured in seconds
-    float arrival_time;
-    float starting_time;
-    float finish_time;
+    double cpu_time; // this is measured in seconds
+    double arrival_time;
+    double starting_time;
+    double finish_time;
     struct Job *next;
 };
 
@@ -37,7 +37,8 @@ enum Policy
 {
     FCFS = 0,
     SJF = 1,
-    Priority = 2
+    Priority = 2,
+    Invalid = 3
 };
 
 
@@ -47,6 +48,9 @@ struct tParameter {
     struct Job* newjob;
     enum Policy policy;
 };
+
+//structure for calculating time
+struct timeval  tv1, tv2;
 
 // global variables
 struct Job* head_job_submitted;
@@ -72,5 +76,5 @@ int completed_buffer_size;
 int completed_size;
 int hardquit;
 int softquit;
-time_t procTime;
+//clock_t procTime;
 #endif 

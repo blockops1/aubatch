@@ -216,13 +216,13 @@ int print_job(struct Job *testjob){
     return 0;
 }
 
-float waiting_time(struct Job **head_ref, struct Job **newjob) {
+double waiting_time(struct Job **head_ref, struct Job **newjob) {
     // traverse queue and find job, add up cpu_time, return time
     if (*head_ref == NULL) {
         //printf("head ref is null in waiting time");
         return 0;
     }
-    float sum = 0;
+    double sum = 0;
     struct Job *current = *head_ref;
     while (current != NULL) {
         if (currentPolicy == FCFS && (*newjob)->arrival_time < current->arrival_time) break;
@@ -235,13 +235,13 @@ float waiting_time(struct Job **head_ref, struct Job **newjob) {
     return sum;
 }
 
-float time_left(struct Job **head_ref) {
+double time_left(struct Job **head_ref) {
     // traverse queue and find job, add up cpu_time, return time
     if (*head_ref == NULL) {
         //printf("head ref is null in waiting time");
         return 0;
     }
-    float sum = 0;
+    double sum = 0;
     struct Job *current = *head_ref;
     while (current != NULL) {
         sum += current->cpu_time;
