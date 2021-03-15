@@ -10,6 +10,8 @@ int submitDispatch(struct Job **);
 int moveToCompleted(struct Job**);
 int statisticsCompleted();
 double process_time();
+int delete_queue(struct Job **, pthread_mutex_t *);
+int delete_completed_queue();
 
 //int printQueue(); 
 
@@ -37,6 +39,10 @@ extern int completed_buffer_size;
 extern int completed_size;
 extern int hardquit;
 extern int softquit;
-//extern clock_t procTime;
+//extern int global_job_id;
+//extern int valid;
+//extern const int MAXJOBS = 500;
+//extern struct Job jobs[500];
+//extern char jobnames[500][24];
 
 #endif

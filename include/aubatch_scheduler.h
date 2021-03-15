@@ -76,5 +76,9 @@ int completed_buffer_size;
 int completed_size;
 int hardquit;
 int softquit;
-//clock_t procTime;
+//int global_job_id;
+//int valid;
+//const int MAXJOBS = 500;
+//struct Job jobs[500];
+//char jobnames[500][24];
 #endif 

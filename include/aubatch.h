@@ -17,6 +17,9 @@ int print_queue_job_info(struct Job *);
 int cmd_policy_change(int , char **);
 int cmd_run_job(int , char **);
 int cmd_test_benchmark(int, char **);
+int cmd_large_batch(int, char **);
+int cmd_reset_queue(int, char**);
+int cmd_statistics(int, char **);
 
 
 // global variables
@@ -43,10 +46,7 @@ extern int completed_buffer_size;
 extern int completed_size;
 extern int hardquit;
 extern int softquit;
-//extern clock_t procTime;
 int global_job_id;
-//int new_priority;
-//float new_time;
 int valid;
 const int MAXJOBS = 500;
 struct Job jobs[500];
@@ -76,6 +76,12 @@ static struct
     {"q", cmd_quit},
     {"quit", cmd_quit},
     {"test", cmd_test_benchmark},
+    {"reset", cmd_reset_queue},
+    {"r", cmd_reset_queue},
+    {"batch", cmd_large_batch},
+    {"b", cmd_large_batch},
+    {"statistics", cmd_statistics},
+    {"s", cmd_statistics},
     /* Please add more operations below. */
     {NULL, NULL}};
 
@@ -87,8 +93,10 @@ static const char *helpmenu[] = {
     "fcfs: change the scheduling policy to FCFS.",
     "sjf: change the scheduling policy to SJF.",
     "priority: change the scheduling policy to priority.",
-    "test <benchmark> <policy> <num_of_jobs> <priority_levels>\n     <min_CPU_time> <max_CPU_time>",
+    "test <benchmark> <policy> <num_of_jobs> <priority_levels>\n     <min_CPU_time> <max_CPU_time> <arrival rate>",
+    "batch <benchmark> <policy> <num_of_jobs> <priority_levels>\n     <min_CPU_time> <max_CPU_time> <arrival rate>",
     "quit: exit AUbatch",
+    "reset: clear the completed queue",
     /* Please add more menu options below */
     NULL};
 

@@ -316,3 +316,39 @@ double process_time()
     //printf("time now is %f\n", time_now);
     return time_now;
 }
+
+int delete_queue(struct Job ** head_ref, pthread_mutex_t *queue_mutex) {
+    // int delete_queue(struct Job ** head_ref, pthread_mutex_t *queue_mutex) {
+    // purpose is to delete all the items in the queue. 
+    // this is used to clear the completed queue for another 
+    // round of performance evaluations.
+    pthread_mutex_lock(queue_mutex);
+    
+    if (*head_ref == NULL) return 0;
+    struct Job *current = *head_ref;
+    while (current != NULL) {
+        current = current->next;
+        //free(current);
+        completed_size--;
+    }
+    pthread_mutex_unlock(queue_mutex);
+    return 0;
+}
+int delete_completed_queue() {
+    // purpose is to delete all the items in the  completedqueue. 
+    // this is used to clear the completed queue for another 
+    // round of performance evaluations.
+    // need to figure out how to gracefully free up memory from those jobs in queue
+    if (head_job_completed == NULL)  return 0;
+    pthread_mutex_lock(&completed_mutex);
+    //struct Job *current = head_job_completed;
+    //while (current != NULL) {
+    //    current = current->next;
+    //    free((struct Job *)current);
+    //    completed_size--;
+    //}
+    completed_size = 0;
+    head_job_completed = NULL;
+    pthread_mutex_unlock(&completed_mutex);
+    return 0;
+}

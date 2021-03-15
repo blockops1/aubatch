@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
         {
             printf("\nQuitting when no jobs left to run.\n");
             printf("Running job is %s, queue size is %d\n", running_job->name, scheduled_size);
-            printf("Approximate time left is %f\n", time_to_go + running_job->cpu_time);
+            printf("Approximate time left is %f seconds.\n", time_to_go + running_job->cpu_time);
         }
         sleep(time_to_go);
         loop_counter++;
@@ -476,58 +476,72 @@ int cmd_run_job(int nargs, char **args)
     return 0;
 }
 
-int cmd_test_benchmark(int nargs, char **args) {
+int cmd_large_batch(int nargs, char **args)
+{
     // generate jobs then submit them based on parameters
-    // test <benchmark> <policy> <num_of_jobs> <priority_levels>
+    // this does not delete the completed queue before running
+    // batch <benchmark> <policy> <num_of_jobs> <priority_levels>
     //      <min_CPU_time> <max_CPU_time>
     int valid = 0;
     enum Policy policy_number = Invalid;
     int num_of_jobs = 0;
     //int priority_low = 0;
     int priority_high = 0;
-    float min_cpu_time = 0;
-    float max_cpu_time = 0;
-    if (nargs != 7) {
+    double min_cpu_time = 0;
+    double max_cpu_time = 0;
+    if (nargs != 7)
+    {
         printf("Incorrect command. Format is:\n");
         printf("test <benchmark> <policy> <num_of_jobs> <priority_levels> <min_CPU_time> <max_CPU_time>\n");
         return -1;
     }
-    if (strlen(args[1]) > 20) {
+    if (strlen(args[1]) > 20)
+    {
         printf("<benchmark> must be less than 20 characters.\n");
         valid = 1;
     }
     num_of_jobs = atoi(args[3]);
-    if (num_of_jobs < 1 || num_of_jobs > MAXJOBS) {
+    if (num_of_jobs < 1 || num_of_jobs > MAXJOBS)
+    {
         printf("Number of jobs must be a positive integer less than %d.\n", MAXJOBS);
         valid = 1;
     }
     priority_high = atoi(args[4]);
-    if (priority_high < 0) {
+    if (priority_high < 0)
+    {
         printf("Priority levels must be a non-negative integer.\n");
         valid = 1;
     }
     min_cpu_time = atof(args[5]);
     max_cpu_time = atof(args[6]);
-    if (min_cpu_time <= 0 || max_cpu_time <= 0 || min_cpu_time > max_cpu_time) {
+    if (min_cpu_time <= 0 || max_cpu_time <= 0 || min_cpu_time > max_cpu_time)
+    {
         printf("CPU time must be greater than 0, and max CPU time must not be less than min CPU time.\n");
         valid = 1;
     }
-    if(strcasecmp("fcfs", args[2]) == 0) policy_number = FCFS;
-    if(strcasecmp("sjf", args[2]) == 0) policy_number = SJF;
-    if(strcasecmp("priority", args[2]) == 0) policy_number = Priority;
-    if (policy_number == Invalid) {
+    if (strcasecmp("fcfs", args[2]) == 0)
+        policy_number = FCFS;
+    if (strcasecmp("sjf", args[2]) == 0)
+        policy_number = SJF;
+    if (strcasecmp("priority", args[2]) == 0)
+        policy_number = Priority;
+    if (policy_number == Invalid)
+    {
         printf("Policy must be one of: fcfs, sjf, priority.\n");
         valid = 1;
     }
-    if (valid != 0) {
+    if (valid != 0)
+    {
         printf("Incorrect command. Format is:\n");
         printf("test <benchmark> <policy> <num_of_jobs> <priority_levels> <min_CPU_time> <max_CPU_time>\n");
         return -1;
     }
     // set policy
+    printf("creating batch of jobs, not clearing completed queue\n");
     currentPolicy = policy_number;
-    float time_increment = (max_cpu_time - min_cpu_time)/10;
-    for (int i = 0; i < num_of_jobs; i++) {
+    double time_increment = (max_cpu_time - min_cpu_time) / num_of_jobs;
+    for (int i = 0; i < num_of_jobs; i++)
+    {
         // call cmd_run_job with loop for all the jobs
         struct Job *newjob;
         ++global_job_id;
@@ -546,5 +560,134 @@ int cmd_test_benchmark(int nargs, char **args) {
         //printf("job %d arrived at about %f\n", job1.id, job1.arrival_time);
         submitJob(newjob);
     }
+    return 0;
+}
+
+int cmd_reset_queue(int nargs, char **args)
+{
+    // purpose is to delete the completed queue
+    if ((submitted_size > 0 || scheduled_size > 0) || running_job != NULL)
+    {
+        printf("deleting completed queue not allowed while there are submitted or scheduled jobs.\n");
+        return -1;
+    }
+    printf("deleting the completed queue\n");
+    delete_completed_queue();
+    return 0;
+}
+
+int cmd_test_benchmark(int nargs, char **args)
+{
+    // generate jobs then submit them based on parameters
+    // batch <benchmark> <policy> <num_of_jobs> <priority_levels>
+    //       <min_CPU_time> <max_CPU_time> <arrival_rate>
+    int valid = 0;
+    enum Policy policy_number = Invalid;
+    int num_of_jobs = 0;
+    //int priority_low = 0;
+    int priority_high = 0;
+    double min_cpu_time = 0;
+    double max_cpu_time = 0;
+    double arrival_rate = 0;
+    if (nargs < 7 || nargs > 8)
+    {
+        printf("Incorrect command. Format is:\n");
+        printf("batch <benchmark> <policy> <num_of_jobs> <priority_levels> <min_CPU_time> <max_CPU_time> <arrival_rate>\n");
+        return -1;
+    }
+    if (strlen(args[1]) > 20)
+    {
+        printf("<benchmark> must be less than 20 characters.\n");
+        valid = 1;
+    }
+    num_of_jobs = atoi(args[3]);
+    if (num_of_jobs < 1 || num_of_jobs > MAXJOBS)
+    {
+        printf("Number of jobs must be a positive integer less than %d.\n", MAXJOBS);
+        valid = 1;
+    }
+    priority_high = atoi(args[4]);
+    if (priority_high < 0)
+    {
+        printf("Priority levels must be a non-negative integer.\n");
+        valid = 1;
+    }
+    min_cpu_time = atof(args[5]);
+    max_cpu_time = atof(args[6]);
+    if (min_cpu_time <= 0 || max_cpu_time <= 0 || min_cpu_time > max_cpu_time)
+    {
+        printf("CPU time must be greater than 0, and max CPU time must not be less than min CPU time.\n");
+        valid = 1;
+    }
+    if (nargs == 8)
+    {
+        arrival_rate = atof(args[7]);
+    }
+    if (arrival_rate < 0)
+    {
+        printf("arrival rate must be a non-negative number\n");
+        return -1;
+    }
+    if (strcasecmp("fcfs", args[2]) == 0)
+        policy_number = FCFS;
+    if (strcasecmp("sjf", args[2]) == 0)
+        policy_number = SJF;
+    if (strcasecmp("priority", args[2]) == 0)
+        policy_number = Priority;
+    if (policy_number == Invalid)
+    {
+        printf("Policy must be one of: fcfs, sjf, priority.\n");
+        valid = 1;
+    }
+    if (valid != 0)
+    {
+        printf("Incorrect command. Format is:\n");
+        printf("batch <benchmark> <policy> <num_of_jobs> <priority_levels> <min_CPU_time> <max_CPU_time> <arrival_rate>\n");
+        return -1;
+    }
+    // set policy
+    printf("Starting benchmark, deleting current completed queue\n");
+    delete_completed_queue();
+    global_job_id = 0;
+    currentPolicy = policy_number;
+    double time_increment = (max_cpu_time - min_cpu_time) / (num_of_jobs);
+    for (int i = 0; i < num_of_jobs; i++)
+    {
+        // call cmd_run_job with loop for all the jobs
+        struct Job *newjob;
+        ++global_job_id;
+        strcpy(jobnames[global_job_id], args[1]);
+        jobs[global_job_id].id = global_job_id;
+        jobs[global_job_id].name = jobnames[global_job_id];
+        jobs[global_job_id].priority = i % priority_high;
+        jobs[global_job_id].cpu_time = min_cpu_time + (time_increment * (i % num_of_jobs));
+        jobs[global_job_id].arrival_time = process_time();
+        jobs[global_job_id].next = NULL;
+
+        //current pointer at first job
+        newjob = &jobs[global_job_id];
+        print_job(newjob);
+        //sleep(1);
+        //printf("job %d arrived at about %f\n", job1.id, job1.arrival_time);
+        submitJob(newjob);
+        usleep(arrival_rate * 1000000);
+    }
+    printf("done submitting jobs\n\n");
+    while ((submitted_size + scheduled_size > 0) || running_job != NULL)
+    {
+        //printf("waiting for jobs to finish\n");
+        //printf("submitted size: %d\n", submitted_size);
+        //printf("scheduled size: %d\n", scheduled_size);
+        //printf(".");
+        sleep(1);
+    }
+    //printf("benchmark completed\n");
+    statisticsCompleted();
+    return 0;
+}
+
+int cmd_statistics(int nargs, char **args) {
+    // print statistics of current completed queue
+    statisticsCompleted();
     return 0;
 }
