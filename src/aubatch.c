@@ -377,7 +377,10 @@ int cmd_policy_change(int nargs, char **args)
             currentPolicy = Priority;
             printf("Changing Policy to Priority\n");
         }
-        policyChange = 0;
+        pthread_mutex_lock(&scheduled_mutex);
+        runningReSortJobs(&head_job_scheduled, currentPolicy);
+        pthread_mutex_unlock(&scheduled_mutex);
+
     }
     return 0;
 }
@@ -431,6 +434,16 @@ int cmd_run_job(int nargs, char **args)
         //print_job(newjob);
         //printf("job %d arrived at about %f\n", job1.id, job1.arrival_time);
         submitJob(newjob);
+        printf("Job %s was submitted.\n", newjob->name);
+        float wait_time = waiting_time(&head_job_submitted, &newjob) + waiting_time(&head_job_scheduled, &newjob);
+        if (running_job != NULL) {
+            wait_time +=  running_job->cpu_time;
+        }
+        printf("Expected waiting time: %f seconds.\n", wait_time);
+        printf("Scheduling Policy: ");
+        if (currentPolicy == FCFS) printf("FCFS.\n");
+        if (currentPolicy == SJF) printf("SJF.\n");
+        if (currentPolicy == Priority) printf("Priority.\n");
     }
     return 0;
 }

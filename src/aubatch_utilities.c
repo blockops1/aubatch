@@ -250,6 +250,7 @@ int printQueue(struct Job *head)
         // Update current
         current = current->next;
         count++;
+        sleep(2);
     }
     return 0;
 }

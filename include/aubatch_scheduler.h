@@ -12,11 +12,12 @@ struct tParameter;
 void *tRunningSchedule(void*);
 int submitSchedule(struct Job**);
 int runningSchedule(struct Job*);
-int runningReSortJobs(enum Policy);
-int runningReSortedInsert(struct Job **,struct Job *, enum Policy);
-int runningSortedJobInsert(struct Job *, enum Policy);
+int runningReSortJobs(struct Job**, enum Policy);
+int runningSortedJobInsert(struct Job **, struct Job *, enum Policy);
 int printQueue(); 
 int print_job(struct Job *);
+float waiting_time(struct Job **, struct Job **);
+
 
 
 // create a structure to hold job data
