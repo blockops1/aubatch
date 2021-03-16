@@ -1,5 +1,14 @@
 /* COMP7500 aubatch main program
- * This is a pthreads based batch scheduling system
+ * This is a pthreads based batch scheduling system.
+ * The jobs are created as nodes that are moved from one queue to another.
+ * There are three queues:
+ * Submitted is for jobs waiting to be scheduled. Jobs are added to the tail.
+ * Scheduled are jobs that are scheduled using the current policy.
+ * The job head of the scheduled queue is removed and run.
+ * When the job is done running, it gets placed at the tail of the completed queue.
+ * The completed queue maintains a list of jobs run in order of execution. When
+ * statistics are required, they are generated from the completed queue.
+ *  
  * Author: Rolf Versluis
  * Date: 18 Feb 2021
  */
@@ -38,7 +47,7 @@ int main(int argc, char *argv[])
     softquit = 1;
     //procTime = clock();
     global_job_id = 0;
-
+    // this is the time the program starts running
     gettimeofday(&tv1, NULL);
 
     if (pthread_mutex_init(&submitted_mutex, NULL) != 0)
@@ -74,7 +83,7 @@ int main(int argc, char *argv[])
     }
     void *returnval = NULL;
 
-    // start the parser running
+    // start the parser running in a loop until done
     char *line = NULL; /* forces getline to allocate with malloc */
     size_t len = 0;    /* ignored when line = NULL */
     ssize_t read;
@@ -128,7 +137,7 @@ int main(int argc, char *argv[])
         loop_counter++;
     }
 
-    //quit the program
+    //this is the soft quit path, when all jobs are done running
     hardquit = 0;
     pthread_cond_signal(&submitted_empty);
     pthread_cond_signal(&scheduled_empty);
@@ -136,22 +145,16 @@ int main(int argc, char *argv[])
     pthread_cond_signal(&submitted_full);
     pthread_cond_signal(&scheduled_full);
     pthread_cond_signal(&scheduled_empty);
-    //statisticsCompleted();
     pthread_join(dispatch_tid1, returnval);
     pthread_mutex_destroy(&submitted_mutex);
     pthread_mutex_destroy(&scheduled_mutex);
     pthread_mutex_destroy(&completed_mutex);
-    //printf("\nSubmitted Queue:\n");
-    //printQueue(head_job_submitted);
-    //printf("\nScheduled Queue:\n");
-    //printQueue(head_job_scheduled);
-    //printf("\nCompleted Queue:\n");
-    //printQueue(head_job_completed);
     statisticsCompleted();
 }
 
 /// functions start
 
+// parses the string provided, splits it into an array on spaces
 size_t string_parser(const char *input, char ***word_array)
 // from https://stackoverflow.com/questions/43015843/parsing-a-string-in-c-to-individual-words
 {
@@ -200,24 +203,24 @@ size_t string_parser(const char *input, char ***word_array)
     return n;
 }
 
+// general command action function, chooses from array in aubatch.h
 int commandAction(int n, char ***word_array)
+// this function structure was provided by Dr. Qin
 {
     int i, result = 0;
     for (i = 0; cmdtable[i].name; i++)
     {
-        //printf("commandAction input: %s\n", *word_array[0]);
-        //printf("commandAction table: %s\n", cmdtable[i].name);
         if (strcmp(*word_array[0], cmdtable[i].name) == 0)
         {
-            //assert(cmdtable[i].func != NULL);
-            //printf("commandAction match! %s, %s\n", *word_array[0], cmdtable[i].name);
             result = cmdtable[i].func(n, *word_array);
         }
     }
     return result;
 }
 
+// prints the helpmenu from the array in aubatch.h
 int cmd_helpmenu(int n, char **a)
+// this function structure was provided by Dr. Qin
 {
     (void)n;
     (void)a;
@@ -241,7 +244,7 @@ void showmenu(const char *name, const char *x[])
 }
 
 /*
- * The quit command.
+ * The quit command. There is a soft quit and hard quit function
  */
 int cmd_quit(int nargs, char **args)
 {
@@ -263,6 +266,7 @@ int cmd_quit(int nargs, char **args)
             printf("currently running job \nname: %s priority: %d cpu_time: %f starting_time: %f\n", running_job->name, running_job->priority, running_job->cpu_time, running_job->starting_time);
         }
 
+        // this is the path if the "quit force" option is chosen. Shut it down now.
         hardquit = 0;
         pthread_cond_signal(&submitted_empty);
         pthread_cond_signal(&scheduled_empty);
@@ -288,6 +292,7 @@ int cmd_quit(int nargs, char **args)
     return 0;
 }
 
+// prints the number of jobs in each queue
 int cmd_queue_size(int n, char **a)
 {
     (void)n;
@@ -307,6 +312,7 @@ int cmd_queue_size(int n, char **a)
     return 0;
 }
 
+// lists the jobs, this is run just after a command line "run" command is entered
 int cmd_list_jobs(int n, char **a)
 {
     (void)n;
@@ -334,6 +340,7 @@ int cmd_list_jobs(int n, char **a)
     return 0;
 }
 
+// function to print summary of jobs in the queue, called from cmd_list_jobs
 int print_queue_job_info(struct Job *head)
 {
     struct Job *current = head;
@@ -365,6 +372,7 @@ int print_queue_job_info(struct Job *head)
     return 0;
 }
 
+// checks to see if scheduling policy is changed. if so, calls for a reschedule of jobs
 int cmd_policy_change(int nargs, char **args)
 {
     char *policy_compare = NULL;
@@ -411,6 +419,7 @@ int cmd_policy_change(int nargs, char **args)
     return 0;
 }
 
+// commmand action to run a single job from the command line
 int cmd_run_job(int nargs, char **args)
 {
     //printf("back from commandAction\n");
@@ -479,6 +488,7 @@ int cmd_run_job(int nargs, char **args)
     return 0;
 }
 
+// command to enter a large number of jobs at once, and keep running. good for seeing policy changes
 int cmd_large_batch(int nargs, char **args)
 {
     // generate jobs then submit them based on parameters
@@ -577,6 +587,7 @@ int cmd_large_batch(int nargs, char **args)
     return 0;
 }
 
+// deletes the completed queue so new statistics can be generated
 int cmd_reset_queue(int nargs, char **args)
 {
     // purpose is to delete the completed queue
@@ -590,6 +601,7 @@ int cmd_reset_queue(int nargs, char **args)
     return 0;
 }
 
+// this is a benchmarking command that will provide stats on a specific test from user
 int cmd_test_benchmark(int nargs, char **args)
 {
     // generate jobs then submit them based on parameters
@@ -701,6 +713,7 @@ int cmd_test_benchmark(int nargs, char **args)
     return 0;
 }
 
+// command to show the current completed queue statistics
 int cmd_statistics(int nargs, char **args)
 {
     // print statistics of current completed queue
@@ -708,6 +721,7 @@ int cmd_statistics(int nargs, char **args)
     return 0;
 }
 
+// generates a performance evaluation of 9 tests, writes results to screen and disc
 int cmd_performance(int nargs, char **args)
 {
     // single command will conduct automated performance evaluation
@@ -736,7 +750,7 @@ int cmd_performance(int nargs, char **args)
     }
     // let's go! make data and write to file
     enum Policy policy_number = Invalid;
-    float max_cpu_time = 10.0;
+    float max_cpu_time = 3.0;
     float min_cpu_time = 1.0;
     int priority_high = 3;
     float arrival_rate = 0;
@@ -779,7 +793,7 @@ int cmd_performance(int nargs, char **args)
             delete_completed_queue();
             global_job_id = 0;
             currentPolicy = policy_number;
-            double time_increment = (max_cpu_time - min_cpu_time) / (num_of_jobs);
+            double time_increment = (max_cpu_time - min_cpu_time) / (num_of_jobs - 1);
             sprintf(perf_test, "test%d%d", i, j);
             if (currentPolicy == FCFS)
             {
@@ -804,7 +818,7 @@ int cmd_performance(int nargs, char **args)
                 jobs[global_job_id].id = global_job_id;
                 jobs[global_job_id].name = jobnames[global_job_id];
                 jobs[global_job_id].priority = i % priority_high;
-                jobs[global_job_id].cpu_time = max_cpu_time - (time_increment * (i % num_of_jobs));
+                jobs[global_job_id].cpu_time = max_cpu_time - (time_increment * (i % (num_of_jobs)));
                 jobs[global_job_id].arrival_time = process_time();
                 jobs[global_job_id].next = NULL;
 

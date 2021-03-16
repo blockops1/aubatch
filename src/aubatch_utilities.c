@@ -48,8 +48,8 @@ int submitJob(struct Job *newjob)
     return 0;
 }
 
-void *tDispatcher(void *received_parameters)
 // This is the dispatcher thread. It looks for jobs in the scheduler queue and runs them.
+void *tDispatcher(void *received_parameters)
 {
     struct Job *newjob = NULL;
     while (hardquit != 0)
@@ -97,6 +97,7 @@ void *tDispatcher(void *received_parameters)
     return 0;
 }
 
+// this is the dipatcher. It returns the job at the head of the scheduled queue
 int submitDispatch(struct Job **newjob)
 {
     // get new job from head of scheduled queue
@@ -139,7 +140,7 @@ int submitDispatch(struct Job **newjob)
     return 0;
 }
 
-// run the job based on its CPU time
+// run the job based on its CPU time using fork and execv
 int runJob(struct Job **newjob)
 {
     // job runs until finished. Keeps a clock and counts every second?
@@ -158,16 +159,8 @@ int runJob(struct Job **newjob)
     //while ((*newjob)->arrival_time > process_time())
     //    ;
     (*newjob)->starting_time = process_time();
-    //char *id = NULL;
-    //sprintf(id, "%d", (*newjob)->id);
-    //char starting_time[17];
-    //sprintf(starting_time, "%f", (*newjob)->starting_time);
     char cpu_time[20] = "";
     sprintf(cpu_time, "%f", (*newjob)->cpu_time);
-    //printf("cpu time string is %s\n", cpu_time);
-    //printf("./workprogram %s %s %s\n", id, starting_time, cpu_time);
-    //printf("Running job id: %d waiting for %f seconds while running job - cpu working\n", (*newjob)->id, (*newjob)->cpu_time);
-    //pid_t parent = getpid();
     pid_t pid = fork();
     if (pid == -1)
     {
@@ -190,11 +183,10 @@ int runJob(struct Job **newjob)
         execv(args[0], args);
         _exit(EXIT_FAILURE); // exec never returns
     }
-    //sleep((*newjob)->cpu_time);
-    //(*newjob)->finish_time = process_time();
     return 0;
 }
 
+// put a job at the tail of the completed queue
 int moveToCompleted(struct Job **newjob)
 {
     struct Job *current = NULL;
@@ -229,6 +221,7 @@ int moveToCompleted(struct Job **newjob)
     return 0;
 }
 
+// print the jobs in the queue starting from the head, moving to the tail. 
 int printQueue(struct Job *head)
 {
     struct Job *current = head;
@@ -307,9 +300,9 @@ int statisticsCompleted()
     return 0;
 }
 
+// returns time since start of system running
 double process_time()
 {
-    // returns time since start of system running
     gettimeofday(&tv2, NULL);
     double time_now = (double) (tv2.tv_usec - tv1.tv_usec) / 1000000 +
          (double) (tv2.tv_sec - tv1.tv_sec);
@@ -317,23 +310,7 @@ double process_time()
     return time_now;
 }
 
-int delete_queue(struct Job ** head_ref, pthread_mutex_t *queue_mutex) {
-    // int delete_queue(struct Job ** head_ref, pthread_mutex_t *queue_mutex) {
-    // purpose is to delete all the items in the queue. 
-    // this is used to clear the completed queue for another 
-    // round of performance evaluations.
-    pthread_mutex_lock(queue_mutex);
-    
-    if (*head_ref == NULL) return 0;
-    struct Job *current = *head_ref;
-    while (current != NULL) {
-        current = current->next;
-        //free(current);
-        completed_size--;
-    }
-    pthread_mutex_unlock(queue_mutex);
-    return 0;
-}
+// deletes the completed queue. It is an ugly function, but it works
 int delete_completed_queue() {
     // purpose is to delete all the items in the  completedqueue. 
     // this is used to clear the completed queue for another 

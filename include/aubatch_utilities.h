@@ -10,7 +10,6 @@ int submitDispatch(struct Job **);
 int moveToCompleted(struct Job**);
 int statisticsCompleted();
 double process_time();
-int delete_queue(struct Job **, pthread_mutex_t *);
 int delete_completed_queue();
 
 //int printQueue(); 

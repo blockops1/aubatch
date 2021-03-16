@@ -1,0 +1,1376 @@
+Script started on 2021-03-15 23:53:53-0400
+]0;rolf@i7-laptop: ~/c_coding/aubatch/src[01;32mrolf@i7-laptop[00m:[01;34m~/c_coding/aubatch/src[00m$ gcc -g -Wall work_program.c -o work_program
+]0;rolf@i7-laptop: ~/c_coding/aubatch/src[01;32mrolf@i7-laptop[00m:[01;34m~/c_coding/aubatch/src[00m$ make
+make: 'aubatch' is up to date.
+]0;rolf@i7-laptop: ~/c_coding/aubatch/src[01;32mrolf@i7-laptop[00m:[01;34m~/c_coding/aubatch/src[00m$ ./aubatch 
+Welcome to BlockOps's batch job scheduler Version 1.0
+
+Type 'help' to find more about AUbatch commands.
+>help
+run <job> <time> <pri>: submit a job named <job>,
+			execution time is <time>,
+			priority is <pri>.
+list: display the job status.
+fcfs: change the scheduling policy to FCFS.
+sjf: change the scheduling policy to SJF.
+priority: change the scheduling policy to priority.
+test <benchmark> <policy> <num_of_jobs> <priority_levels>
+     <min_CPU_time> <max_CPU_time> <arrival rate>
+batch <benchmark> <policy> <num_of_jobs> <priority_levels>
+     <min_CPU_time> <max_CPU_time> <arrival rate>
+quit: exit AUbatch
+reset: clear the completed queue
+statistics: show statistics on the completed queue
+performance: run the automated performance test suite and output to file
+
+>run dogh    15 1
+Job dog was submitted.
+Total number of jobs in the queue: 1
+Expected waiting time: 15.000000 seconds.
+Scheduling Policy: Priority.
+>run cat 20 2
+Job cat was submitted.
+Total number of jobs in the queue: 1
+Expected waiting time: 35.000000 seconds.
+Scheduling Policy: Priority.
+job running: dog>l
+Total number of jobs in the queue: 1
+Scheduling Policy: Priority-Lowest Priority Jobs First
+Name	CPU_Time	Pri	Arrival_time	Progress
+dog	15.000000	1	13.939751	Running
+cat	20.000000	2	16.928389	Scheduled Queue
+
+job running: dog>batch fifty fcfs 50 3 2 10 1
+creating batch of jobs, not clearing completed queue
+3	fifty	0	2.000000	52.191974 
+4	fifty	1	2.160000	52.191990 
+5	fifty	2	2.320000	52.192001 
+6	fifty	0	2.480000	52.192007 
+7	fifty	1	2.640000	52.192019 
+8	fifty	2	2.800000	52.192030 
+9	fifty	0	2.960000	52.192037 
+10	fifty	1	3.120000	52.192046 
+11	fifty	2	3.280000	52.192057 
+12	fifty	0	3.440000	52.192065 
+13	fifty	1	3.600000	52.192070 
+14	fifty	2	2.000000	52.192076 
+15	fifty	0	2.160000	52.192079 
+16	fifty	1	2.320000	52.192083 
+17	fifty	2	2.480000	52.192087 
+18	fifty	0	2.640000	52.192090 
+19	fifty	1	2.800000	52.192093 
+20	fifty	2	2.960000	52.192125 
+21	fifty	0	3.120000	52.192139 
+22	fifty	1	3.280000	52.192146 
+23	fifty	2	3.440000	52.192153 
+24	fifty	0	3.600000	52.192160 
+25	fifty	1	2.000000	52.192166 
+26	fifty	2	2.160000	52.192171 
+27	fifty	0	2.320000	52.192177 
+28	fifty	1	2.480000	52.192184 
+29	fifty	2	2.640000	52.192190 
+30	fifty	0	2.800000	52.192197 
+31	fifty	1	2.960000	52.192203 
+32	fifty	2	3.120000	52.192210 
+33	fifty	0	3.280000	52.192215 
+34	fifty	1	3.440000	52.192221 
+35	fifty	2	3.600000	52.192227 
+36	fifty	0	2.000000	52.192233 
+37	fifty	1	2.160000	52.192238 
+38	fifty	2	2.320000	52.192242 
+39	fifty	0	2.480000	52.192248 
+40	fifty	1	2.640000	52.192255 
+41	fifty	2	2.800000	52.192261 
+42	fifty	0	2.960000	52.192267 
+43	fifty	1	3.120000	52.192274 
+44	fifty	2	3.280000	52.192280 
+45	fifty	0	3.440000	52.192287 
+46	fifty	1	3.600000	52.192294 
+47	fifty	2	2.000000	52.192302 
+48	fifty	0	2.160000	52.192310 
+49	fifty	1	2.320000	52.192320 
+50	fifty	2	2.480000	52.192326 
+51	fifty	0	2.640000	52.192332 
+52	fifty	1	2.800000	52.192339 
+Approximate time left is 135.600000
+job running: fifty>l
+Total number of jobs in the queue: 48
+Scheduling Policy: FCFS-First Come First Served
+Name	CPU_Time	Pri	Arrival_time	Progress
+fifty	2.160000	1	52.191990	Running
+fifty	2.320000	2	52.192001	Scheduled Queue
+fifty	2.480000	0	52.192007	Scheduled Queue
+fifty	2.640000	1	52.192019	Scheduled Queue
+fifty	2.800000	2	52.192030	Scheduled Queue
+fifty	2.960000	0	52.192037	Scheduled Queue
+fifty	3.120000	1	52.192046	Scheduled Queue
+fifty	3.280000	2	52.192057	Scheduled Queue
+fifty	3.440000	0	52.192065	Scheduled Queue
+fifty	3.600000	1	52.192070	Scheduled Queue
+fifty	2.000000	2	52.192076	Scheduled Queue
+fifty	2.160000	0	52.192079	Scheduled Queue
+fifty	2.320000	1	52.192083	Scheduled Queue
+fifty	2.480000	2	52.192087	Scheduled Queue
+fifty	2.640000	0	52.192090	Scheduled Queue
+fifty	2.800000	1	52.192093	Scheduled Queue
+fifty	2.960000	2	52.192125	Scheduled Queue
+fifty	3.120000	0	52.192139	Scheduled Queue
+fifty	3.280000	1	52.192146	Scheduled Queue
+fifty	3.440000	2	52.192153	Scheduled Queue
+fifty	3.600000	0	52.192160	Scheduled Queue
+fifty	2.000000	1	52.192166	Scheduled Queue
+fifty	2.160000	2	52.192171	Scheduled Queue
+fifty	2.320000	0	52.192177	Scheduled Queue
+fifty	2.480000	1	52.192184	Scheduled Queue
+fifty	2.640000	2	52.192190	Scheduled Queue
+fifty	2.800000	0	52.192197	Scheduled Queue
+fifty	2.960000	1	52.192203	Scheduled Queue
+fifty	3.120000	2	52.192210	Scheduled Queue
+fifty	3.280000	0	52.192215	Scheduled Queue
+fifty	3.440000	1	52.192221	Scheduled Queue
+fifty	3.600000	2	52.192227	Scheduled Queue
+fifty	2.000000	0	52.192233	Scheduled Queue
+fifty	2.160000	1	52.192238	Scheduled Queue
+fifty	2.320000	2	52.192242	Scheduled Queue
+fifty	2.480000	0	52.192248	Scheduled Queue
+fifty	2.640000	1	52.192255	Scheduled Queue
+fifty	2.800000	2	52.192261	Scheduled Queue
+fifty	2.960000	0	52.192267	Scheduled Queue
+fifty	3.120000	1	52.192274	Scheduled Queue
+fifty	3.280000	2	52.192280	Scheduled Queue
+fifty	3.440000	0	52.192287	Scheduled Queue
+fifty	3.600000	1	52.192294	Scheduled Queue
+fifty	2.000000	2	52.192302	Scheduled Queue
+fifty	2.160000	0	52.192310	Scheduled Queue
+fifty	2.320000	1	52.192320	Scheduled Queue
+fifty	2.480000	2	52.192326	Scheduled Queue
+fifty	2.640000	0	52.192332	Scheduled Queue
+fifty	2.800000	1	52.192339	Scheduled Queue
+
+job running: fifty>p sjf
+FCFS is current policy
+Changing Policy to SJF
+resorting jobs with new policy SJF
+job running: fifty>l
+Total number of jobs in the queue: 46
+Scheduling Policy: SJF-Shortest Job First
+Name	CPU_Time	Pri	Arrival_time	Progress
+fifty	2.480000	0	52.192007	Running
+fifty	2.000000	2	52.192076	Scheduled Queue
+fifty	2.000000	2	52.192302	Scheduled Queue
+fifty	2.000000	0	52.192233	Scheduled Queue
+fifty	2.000000	1	52.192166	Scheduled Queue
+fifty	2.160000	0	52.192310	Scheduled Queue
+fifty	2.160000	1	52.192238	Scheduled Queue
+fifty	2.160000	2	52.192171	Scheduled Queue
+fifty	2.160000	0	52.192079	Scheduled Queue
+fifty	2.320000	1	52.192320	Scheduled Queue
+fifty	2.320000	2	52.192242	Scheduled Queue
+fifty	2.320000	0	52.192177	Scheduled Queue
+fifty	2.320000	1	52.192083	Scheduled Queue
+fifty	2.480000	2	52.192326	Scheduled Queue
+fifty	2.480000	0	52.192248	Scheduled Queue
+fifty	2.480000	1	52.192184	Scheduled Queue
+fifty	2.480000	2	52.192087	Scheduled Queue
+fifty	2.640000	0	52.192332	Scheduled Queue
+fifty	2.640000	1	52.192255	Scheduled Queue
+fifty	2.640000	2	52.192190	Scheduled Queue
+fifty	2.640000	0	52.192090	Scheduled Queue
+fifty	2.640000	1	52.192019	Scheduled Queue
+fifty	2.800000	1	52.192339	Scheduled Queue
+fifty	2.800000	2	52.192261	Scheduled Queue
+fifty	2.800000	0	52.192197	Scheduled Queue
+fifty	2.800000	1	52.192093	Scheduled Queue
+fifty	2.800000	2	52.192030	Scheduled Queue
+fifty	2.960000	0	52.192267	Scheduled Queue
+fifty	2.960000	1	52.192203	Scheduled Queue
+fifty	2.960000	2	52.192125	Scheduled Queue
+fifty	2.960000	0	52.192037	Scheduled Queue
+fifty	3.120000	1	52.192274	Scheduled Queue
+fifty	3.120000	2	52.192210	Scheduled Queue
+fifty	3.120000	0	52.192139	Scheduled Queue
+fifty	3.120000	1	52.192046	Scheduled Queue
+fifty	3.280000	2	52.192280	Scheduled Queue
+fifty	3.280000	0	52.192215	Scheduled Queue
+fifty	3.280000	1	52.192146	Scheduled Queue
+fifty	3.280000	2	52.192057	Scheduled Queue
+fifty	3.440000	0	52.192287	Scheduled Queue
+fifty	3.440000	1	52.192221	Scheduled Queue
+fifty	3.440000	2	52.192153	Scheduled Queue
+fifty	3.440000	0	52.192065	Scheduled Queue
+fifty	3.600000	1	52.192294	Scheduled Queue
+fifty	3.600000	2	52.192227	Scheduled Queue
+fifty	3.600000	0	52.192160	Scheduled Queue
+fifty	3.600000	1	52.192070	Scheduled Queue
+
+job running: fifty>priority
+SJF is current policy
+Changing Policy to Priority
+resorting jobs with new policy Priority
+job running: fifty>l
+Total number of jobs in the queue: 43
+Scheduling Policy: Priority-Lowest Priority Jobs First
+Name	CPU_Time	Pri	Arrival_time	Progress
+fifty	2.000000	0	52.192233	Running
+fifty	2.160000	0	52.192310	Scheduled Queue
+fifty	3.600000	0	52.192160	Scheduled Queue
+fifty	3.440000	0	52.192065	Scheduled Queue
+fifty	3.440000	0	52.192287	Scheduled Queue
+fifty	3.280000	0	52.192215	Scheduled Queue
+fifty	3.120000	0	52.192139	Scheduled Queue
+fifty	2.960000	0	52.192037	Scheduled Queue
+fifty	2.960000	0	52.192267	Scheduled Queue
+fifty	2.800000	0	52.192197	Scheduled Queue
+fifty	2.640000	0	52.192090	Scheduled Queue
+fifty	2.640000	0	52.192332	Scheduled Queue
+fifty	2.480000	0	52.192248	Scheduled Queue
+fifty	2.320000	0	52.192177	Scheduled Queue
+fifty	2.160000	0	52.192079	Scheduled Queue
+fifty	3.600000	1	52.192070	Scheduled Queue
+fifty	3.600000	1	52.192294	Scheduled Queue
+fifty	3.440000	1	52.192221	Scheduled Queue
+fifty	3.280000	1	52.192146	Scheduled Queue
+fifty	3.120000	1	52.192046	Scheduled Queue
+fifty	3.120000	1	52.192274	Scheduled Queue
+fifty	2.960000	1	52.192203	Scheduled Queue
+fifty	2.800000	1	52.192093	Scheduled Queue
+fifty	2.800000	1	52.192339	Scheduled Queue
+fifty	2.640000	1	52.192019	Scheduled Queue
+fifty	2.640000	1	52.192255	Scheduled Queue
+fifty	2.480000	1	52.192184	Scheduled Queue
+fifty	2.320000	1	52.192083	Scheduled Queue
+fifty	2.320000	1	52.192320	Scheduled Queue
+fifty	2.160000	1	52.192238	Scheduled Queue
+fifty	2.000000	1	52.192166	Scheduled Queue
+fifty	3.600000	2	52.192227	Scheduled Queue
+fifty	3.440000	2	52.192153	Scheduled Queue
+fifty	3.280000	2	52.192057	Scheduled Queue
+fifty	3.280000	2	52.192280	Scheduled Queue
+fifty	3.120000	2	52.192210	Scheduled Queue
+fifty	2.960000	2	52.192125	Scheduled Queue
+fifty	2.800000	2	52.192030	Scheduled Queue
+fifty	2.800000	2	52.192261	Scheduled Queue
+fifty	2.640000	2	52.192190	Scheduled Queue
+fifty	2.480000	2	52.192087	Scheduled Queue
+fifty	2.480000	2	52.192326	Scheduled Queue
+fifty	2.320000	2	52.192242	Scheduled Queue
+fifty	2.160000	2	52.192171	Scheduled Queue
+
+job running: fifty>help
+run <job> <time> <pri>: submit a job named <job>,
+			execution time is <time>,
+			priority is <pri>.
+list: display the job status.
+fcfs: change the scheduling policy to FCFS.
+sjf: change the scheduling policy to SJF.
+priority: change the scheduling policy to priority.
+test <benchmark> <policy> <num_of_jobs> <priority_levels>
+     <min_CPU_time> <max_CPU_time> <arrival rate>
+batch <benchmark> <policy> <num_of_jobs> <priority_levels>
+     <min_CPU_time> <max_CPU_time> <arrival rate>
+quit: exit AUbatch
+reset: clear the completed queue
+statistics: show statistics on the completed queue
+performance: run the automated performance test suite and output to file
+
+job running: fifty>l
+Total number of jobs in the queue: 35
+Scheduling Policy: Priority-Lowest Priority Jobs First
+Name	CPU_Time	Pri	Arrival_time	Progress
+fifty	2.960000	0	52.192267	Running
+fifty	2.800000	0	52.192197	Scheduled Queue
+fifty	2.640000	0	52.192090	Scheduled Queue
+fifty	2.640000	0	52.192332	Scheduled Queue
+fifty	2.480000	0	52.192248	Scheduled Queue
+fifty	2.320000	0	52.192177	Scheduled Queue
+fifty	2.160000	0	52.192079	Scheduled Queue
+fifty	3.600000	1	52.192070	Scheduled Queue
+fifty	3.600000	1	52.192294	Scheduled Queue
+fifty	3.440000	1	52.192221	Scheduled Queue
+fifty	3.280000	1	52.192146	Scheduled Queue
+fifty	3.120000	1	52.192046	Scheduled Queue
+fifty	3.120000	1	52.192274	Scheduled Queue
+fifty	2.960000	1	52.192203	Scheduled Queue
+fifty	2.800000	1	52.192093	Scheduled Queue
+fifty	2.800000	1	52.192339	Scheduled Queue
+fifty	2.640000	1	52.192019	Scheduled Queue
+fifty	2.640000	1	52.192255	Scheduled Queue
+fifty	2.480000	1	52.192184	Scheduled Queue
+fifty	2.320000	1	52.192083	Scheduled Queue
+fifty	2.320000	1	52.192320	Scheduled Queue
+fifty	2.160000	1	52.192238	Scheduled Queue
+fifty	2.000000	1	52.192166	Scheduled Queue
+fifty	3.600000	2	52.192227	Scheduled Queue
+fifty	3.440000	2	52.192153	Scheduled Queue
+fifty	3.280000	2	52.192057	Scheduled Queue
+fifty	3.280000	2	52.192280	Scheduled Queue
+fifty	3.120000	2	52.192210	Scheduled Queue
+fifty	2.960000	2	52.192125	Scheduled Queue
+fifty	2.800000	2	52.192030	Scheduled Queue
+fifty	2.800000	2	52.192261	Scheduled Queue
+fifty	2.640000	2	52.192190	Scheduled Queue
+fifty	2.480000	2	52.192087	Scheduled Queue
+fifty	2.480000	2	52.192326	Scheduled Queue
+fifty	2.320000	2	52.192242	Scheduled Queue
+fifty	2.160000	2	52.192171	Scheduled Queue
+
+job running: fifty>stst  atistics
+Individual Job Performance Report
+name: dog priority: 1 cpu time: 15.000000 arrival: 13.939751 start: 13.939859 finish 28.941417 wait:0.000108
+name: cat priority: 2 cpu time: 20.000000 arrival: 16.928389 start: 28.941418 finish 48.942400 wait:12.013029
+name: fifty priority: 0 cpu time: 2.000000 arrival: 52.191974 start: 52.192019 finish 54.192697 wait:0.000045
+name: fifty priority: 1 cpu time: 2.160000 arrival: 52.191990 start: 54.192698 finish 56.354960 wait:2.000708
+name: fifty priority: 2 cpu time: 2.320000 arrival: 52.192001 start: 56.354962 finish 58.676624 wait:4.162961
+name: fifty priority: 0 cpu time: 2.480000 arrival: 52.192007 start: 58.676625 finish 61.157411 wait:6.484618
+name: fifty priority: 2 cpu time: 2.000000 arrival: 52.192076 start: 61.157413 finish 63.158318 wait:8.965337
+name: fifty priority: 2 cpu time: 2.000000 arrival: 52.192302 start: 63.158319 finish 65.158955 wait:10.966017
+name: fifty priority: 0 cpu time: 2.000000 arrival: 52.192233 start: 65.158956 finish 67.159630 wait:12.966723
+name: fifty priority: 0 cpu time: 2.160000 arrival: 52.192310 start: 67.159631 finish 69.320343 wait:14.967321
+name: fifty priority: 0 cpu time: 3.600000 arrival: 52.192160 start: 69.320345 finish 72.921329 wait:17.128185
+name: fifty priority: 0 cpu time: 3.440000 arrival: 52.192065 start: 72.921336 finish 76.362889 wait:20.729271
+name: fifty priority: 0 cpu time: 3.440000 arrival: 52.192287 start: 76.362890 finish 79.803657 wait:24.170603
+name: fifty priority: 0 cpu time: 3.280000 arrival: 52.192215 start: 79.803659 finish 83.084407 wait:27.611444
+name: fifty priority: 0 cpu time: 3.120000 arrival: 52.192139 start: 83.084409 finish 86.205010 wait:30.892270
+name: fifty priority: 0 cpu time: 2.960000 arrival: 52.192037 start: 86.205011 finish 89.165587 wait:34.012974
+name: fifty priority: 0 cpu time: 2.960000 arrival: 52.192267 start: 89.165588 finish 92.126198 wait:36.973321
+name: fifty priority: 0 cpu time: 2.800000 arrival: 52.192197 start: 92.126200 finish 94.926986 wait:39.934003
+
+Total Performance Report
+Total number of job submitted: 	18
+Average turnaround time: 	21.206468 seconds
+Average CPU time: 		4.317778 seconds
+Average waiting time: 		16.887719 seconds
+Throughput: 			0.047155 jobs/second
+
+job running: fifty>
+job running: fifty>
+job running: fifty>
+job running: fifty>q
+There are still jobs running. AUbatch will quit when jobs are done running.
+Next time can type "quit force" or "q f" to force quit with jobs still running.
+job running: fifty>
+Quitting when no jobs left to run.
+Running job is fifty, queue size is 24
+Approximate time left is 68.719998 seconds.
+Individual Job Performance Report
+name: dog priority: 1 cpu time: 15.000000 arrival: 13.939751 start: 13.939859 finish 28.941417 wait:0.000108
+name: cat priority: 2 cpu time: 20.000000 arrival: 16.928389 start: 28.941418 finish 48.942400 wait:12.013029
+name: fifty priority: 0 cpu time: 2.000000 arrival: 52.191974 start: 52.192019 finish 54.192697 wait:0.000045
+name: fifty priority: 1 cpu time: 2.160000 arrival: 52.191990 start: 54.192698 finish 56.354960 wait:2.000708
+name: fifty priority: 2 cpu time: 2.320000 arrival: 52.192001 start: 56.354962 finish 58.676624 wait:4.162961
+name: fifty priority: 0 cpu time: 2.480000 arrival: 52.192007 start: 58.676625 finish 61.157411 wait:6.484618
+name: fifty priority: 2 cpu time: 2.000000 arrival: 52.192076 start: 61.157413 finish 63.158318 wait:8.965337
+name: fifty priority: 2 cpu time: 2.000000 arrival: 52.192302 start: 63.158319 finish 65.158955 wait:10.966017
+name: fifty priority: 0 cpu time: 2.000000 arrival: 52.192233 start: 65.158956 finish 67.159630 wait:12.966723
+name: fifty priority: 0 cpu time: 2.160000 arrival: 52.192310 start: 67.159631 finish 69.320343 wait:14.967321
+name: fifty priority: 0 cpu time: 3.600000 arrival: 52.192160 start: 69.320345 finish 72.921329 wait:17.128185
+name: fifty priority: 0 cpu time: 3.440000 arrival: 52.192065 start: 72.921336 finish 76.362889 wait:20.729271
+name: fifty priority: 0 cpu time: 3.440000 arrival: 52.192287 start: 76.362890 finish 79.803657 wait:24.170603
+name: fifty priority: 0 cpu time: 3.280000 arrival: 52.192215 start: 79.803659 finish 83.084407 wait:27.611444
+name: fifty priority: 0 cpu time: 3.120000 arrival: 52.192139 start: 83.084409 finish 86.205010 wait:30.892270
+name: fifty priority: 0 cpu time: 2.960000 arrival: 52.192037 start: 86.205011 finish 89.165587 wait:34.012974
+name: fifty priority: 0 cpu time: 2.960000 arrival: 52.192267 start: 89.165588 finish 92.126198 wait:36.973321
+name: fifty priority: 0 cpu time: 2.800000 arrival: 52.192197 start: 92.126200 finish 94.926986 wait:39.934003
+name: fifty priority: 0 cpu time: 2.640000 arrival: 52.192090 start: 94.926989 finish 97.568105 wait:42.734899
+name: fifty priority: 0 cpu time: 2.640000 arrival: 52.192332 start: 97.568107 finish 100.208969 wait:45.375775
+name: fifty priority: 0 cpu time: 2.480000 arrival: 52.192248 start: 100.208976 finish 102.690650 wait:48.016728
+name: fifty priority: 0 cpu time: 2.320000 arrival: 52.192177 start: 102.690658 finish 105.012411 wait:50.498481
+name: fifty priority: 0 cpu time: 2.160000 arrival: 52.192079 start: 105.012416 finish 107.174477 wait:52.820337
+name: fifty priority: 1 cpu time: 3.600000 arrival: 52.192070 start: 107.174481 finish 110.776338 wait:54.982411
+name: fifty priority: 1 cpu time: 3.600000 arrival: 52.192294 start: 110.776342 finish 114.378087 wait:58.584048
+name: fifty priority: 1 cpu time: 3.440000 arrival: 52.192221 start: 114.378091 finish 117.819935 wait:62.185870
+name: fifty priority: 1 cpu time: 3.280000 arrival: 52.192146 start: 117.819936 finish 121.100828 wait:65.627790
+name: fifty priority: 1 cpu time: 3.120000 arrival: 52.192046 start: 121.100832 finish 124.222260 wait:68.908786
+name: fifty priority: 1 cpu time: 3.120000 arrival: 52.192274 start: 124.222262 finish 127.343153 wait:72.029988
+name: fifty priority: 1 cpu time: 2.960000 arrival: 52.192203 start: 127.343158 finish 130.304914 wait:75.150955
+name: fifty priority: 1 cpu time: 2.800000 arrival: 52.192093 start: 130.304916 finish 133.105601 wait:78.112823
+name: fifty priority: 1 cpu time: 2.800000 arrival: 52.192339 start: 133.105604 finish 135.921660 wait:80.913265
+name: fifty priority: 1 cpu time: 2.640000 arrival: 52.192019 start: 135.921663 finish 138.562272 wait:83.729644
+name: fifty priority: 1 cpu time: 2.640000 arrival: 52.192255 start: 138.562275 finish 141.203086 wait:86.370020
+name: fifty priority: 1 cpu time: 2.480000 arrival: 52.192184 start: 141.203101 finish 143.683699 wait:89.010917
+name: fifty priority: 1 cpu time: 2.320000 arrival: 52.192083 start: 143.683701 finish 146.004350 wait:91.491618
+name: fifty priority: 1 cpu time: 2.320000 arrival: 52.192320 start: 146.004353 finish 148.325112 wait:93.812033
+name: fifty priority: 1 cpu time: 2.160000 arrival: 52.192238 start: 148.325115 finish 150.486056 wait:96.132877
+name: fifty priority: 1 cpu time: 2.000000 arrival: 52.192166 start: 150.486059 finish 152.486711 wait:98.293893
+name: fifty priority: 2 cpu time: 3.600000 arrival: 52.192227 start: 152.486713 finish 156.087675 wait:100.294486
+name: fifty priority: 2 cpu time: 3.440000 arrival: 52.192153 start: 156.087680 finish 159.529209 wait:103.895527
+name: fifty priority: 2 cpu time: 3.280000 arrival: 52.192057 start: 159.529224 finish 162.809884 wait:107.337167
+name: fifty priority: 2 cpu time: 3.280000 arrival: 52.192280 start: 162.809886 finish 166.090480 wait:110.617606
+name: fifty priority: 2 cpu time: 3.120000 arrival: 52.192210 start: 166.090482 finish 169.211128 wait:113.898272
+name: fifty priority: 2 cpu time: 2.960000 arrival: 52.192125 start: 169.211131 finish 172.172211 wait:117.019006
+name: fifty priority: 2 cpu time: 2.800000 arrival: 52.192030 start: 172.172214 finish 174.973273 wait:119.980184
+name: fifty priority: 2 cpu time: 2.800000 arrival: 52.192261 start: 174.973275 finish 177.774235 wait:122.781014
+name: fifty priority: 2 cpu time: 2.640000 arrival: 52.192190 start: 177.774241 finish 180.415918 wait:125.582051
+name: fifty priority: 2 cpu time: 2.480000 arrival: 52.192087 start: 180.415923 finish 182.897602 wait:128.223836
+name: fifty priority: 2 cpu time: 2.480000 arrival: 52.192326 start: 182.897612 finish 185.379221 wait:130.705286
+name: fifty priority: 2 cpu time: 2.320000 arrival: 52.192242 start: 185.379226 finish 187.700598 wait:133.186984
+name: fifty priority: 2 cpu time: 2.160000 arrival: 52.192171 start: 187.700606 finish 189.862149 wait:135.508435
+
+Total Performance Report
+Total number of job submitted: 	52
+Average turnaround time: 	67.701239 seconds
+Average CPU time: 		3.319231 seconds
+Average waiting time: 		64.380614 seconds
+Throughput: 			0.014771 jobs/second
+
+]0;rolf@i7-laptop: ~/c_coding/aubatch/src[01;32mrolf@i7-laptop[00m:[01;34m~/c_coding/aubatch/src[00m$ ./aubatch 
+Welcome to BlockOps's batch job scheduler Version 1.0
+
+Type 'help' to find more about AUbatch commands.
+>help
+run <job> <time> <pri>: submit a job named <job>,
+			execution time is <time>,
+			priority is <pri>.
+list: display the job status.
+fcfs: change the scheduling policy to FCFS.
+sjf: change the scheduling policy to SJF.
+priority: change the scheduling policy to priority.
+test <benchmark> <policy> <num_of_jobs> <priority_levels>
+     <min_CPU_time> <max_CPU_time> <arrival rate>
+batch <benchmark> <policy> <num_of_jobs> <priority_levels>
+     <min_CPU_time> <max_CPU_time> <arrival rate>
+quit: exit AUbatch
+reset: clear the completed queue
+statistics: show statistics on the completed queue
+performance: run the automated performance test suite and output to file
+
+>batch test
+Incorrect command. Format is:
+batch <benchmark> <policy> <num_of_jobs> <priority_levels> <min_CPU_time> <max_CPU_time> <arrival_rate>
+>batch fifty fcfs 50 9 1 10 1
+creating batch of jobs, not clearing completed queue
+1	fifty	0	1.000000	25.528382 
+2	fifty	1	1.180000	25.528394 
+3	fifty	2	1.360000	25.528397 
+4	fifty	3	1.540000	25.528400 
+5	fifty	4	1.720000	25.528403 
+6	fifty	5	1.900000	25.528418 
+7	fifty	6	2.080000	25.528421 
+8	fifty	7	2.260000	25.528423 
+9	fifty	8	2.440000	25.528426 
+10	fifty	0	2.620000	25.528428 
+11	fifty	1	2.800000	25.528431 
+12	fifty	2	1.000000	25.528434 
+13	fifty	3	1.180000	25.528436 
+14	fifty	4	1.360000	25.528439 
+15	fifty	5	1.540000	25.528441 
+16	fifty	6	1.720000	25.528446 
+17	fifty	7	1.900000	25.528467 
+18	fifty	8	2.080000	25.528474 
+19	fifty	0	2.260000	25.528482 
+20	fifty	1	2.440000	25.528492 
+21	fifty	2	2.620000	25.528498 
+22	fifty	3	2.800000	25.528505 
+23	fifty	4	1.000000	25.528513 
+24	fifty	5	1.180000	25.528520 
+25	fifty	6	1.360000	25.528524 
+26	fifty	7	1.540000	25.528529 
+27	fifty	8	1.720000	25.528533 
+28	fifty	0	1.900000	25.528538 
+29	fifty	1	2.080000	25.528544 
+30	fifty	2	2.260000	25.528549 
+31	fifty	3	2.440000	25.528555 
+32	fifty	4	2.620000	25.528592 
+33	fifty	5	2.800000	25.528604 
+34	fifty	6	1.000000	25.528609 
+35	fifty	7	1.180000	25.528613 
+36	fifty	8	1.360000	25.528623 
+37	fifty	0	1.540000	25.528627 
+38	fifty	1	1.720000	25.528632 
+39	fifty	2	1.900000	25.528647 
+40	fifty	3	2.080000	25.528650 
+41	fifty	4	2.260000	25.528655 
+42	fifty	5	2.440000	25.528660 
+43	fifty	6	2.620000	25.528665 
+44	fifty	7	2.800000	25.528671 
+45	fifty	8	1.000000	25.528677 
+46	fifty	0	1.180000	25.528684 
+47	fifty	1	1.360000	25.528694 
+48	fifty	2	1.540000	25.528701 
+49	fifty	3	1.720000	25.528778 
+50	fifty	4	1.900000	25.528784 
+Approximate time left is 91.300000
+job running: fifty>l
+Total number of jobs in the queue: 48
+Scheduling Policy: FCFS-First Come First Served
+Name	CPU_Time	Pri	Arrival_time	Progress
+fifty	1.180000	1	25.528394	Running
+fifty	1.360000	2	25.528397	Scheduled Queue
+fifty	1.540000	3	25.528400	Scheduled Queue
+fifty	1.720000	4	25.528403	Scheduled Queue
+fifty	1.900000	5	25.528418	Scheduled Queue
+fifty	2.080000	6	25.528421	Scheduled Queue
+fifty	2.260000	7	25.528423	Scheduled Queue
+fifty	2.440000	8	25.528426	Scheduled Queue
+fifty	2.620000	0	25.528428	Scheduled Queue
+fifty	2.800000	1	25.528431	Scheduled Queue
+fifty	1.000000	2	25.528434	Scheduled Queue
+fifty	1.180000	3	25.528436	Scheduled Queue
+fifty	1.360000	4	25.528439	Scheduled Queue
+fifty	1.540000	5	25.528441	Scheduled Queue
+fifty	1.720000	6	25.528446	Scheduled Queue
+fifty	1.900000	7	25.528467	Scheduled Queue
+fifty	2.080000	8	25.528474	Scheduled Queue
+fifty	2.260000	0	25.528482	Scheduled Queue
+fifty	2.440000	1	25.528492	Scheduled Queue
+fifty	2.620000	2	25.528498	Scheduled Queue
+fifty	2.800000	3	25.528505	Scheduled Queue
+fifty	1.000000	4	25.528513	Scheduled Queue
+fifty	1.180000	5	25.528520	Scheduled Queue
+fifty	1.360000	6	25.528524	Scheduled Queue
+fifty	1.540000	7	25.528529	Scheduled Queue
+fifty	1.720000	8	25.528533	Scheduled Queue
+fifty	1.900000	0	25.528538	Scheduled Queue
+fifty	2.080000	1	25.528544	Scheduled Queue
+fifty	2.260000	2	25.528549	Scheduled Queue
+fifty	2.440000	3	25.528555	Scheduled Queue
+fifty	2.620000	4	25.528592	Scheduled Queue
+fifty	2.800000	5	25.528604	Scheduled Queue
+fifty	1.000000	6	25.528609	Scheduled Queue
+fifty	1.180000	7	25.528613	Scheduled Queue
+fifty	1.360000	8	25.528623	Scheduled Queue
+fifty	1.540000	0	25.528627	Scheduled Queue
+fifty	1.720000	1	25.528632	Scheduled Queue
+fifty	1.900000	2	25.528647	Scheduled Queue
+fifty	2.080000	3	25.528650	Scheduled Queue
+fifty	2.260000	4	25.528655	Scheduled Queue
+fifty	2.440000	5	25.528660	Scheduled Queue
+fifty	2.620000	6	25.528665	Scheduled Queue
+fifty	2.800000	7	25.528671	Scheduled Queue
+fifty	1.000000	8	25.528677	Scheduled Queue
+fifty	1.180000	0	25.528684	Scheduled Queue
+fifty	1.360000	1	25.528694	Scheduled Queue
+fifty	1.540000	2	25.528701	Scheduled Queue
+fifty	1.720000	3	25.528778	Scheduled Queue
+fifty	1.900000	4	25.528784	Scheduled Queue
+
+job running: fifty>priority
+FCFS is current policy
+Changing Policy to Priority
+resorting jobs with new policy Priority
+job running: fifty>l
+Total number of jobs in the queue: 45
+Scheduling Policy: Priority-Lowest Priority Jobs First
+Name	CPU_Time	Pri	Arrival_time	Progress
+fifty	2.620000	0	25.528428	Running
+fifty	1.180000	0	25.528684	Scheduled Queue
+fifty	1.540000	0	25.528627	Scheduled Queue
+fifty	1.900000	0	25.528538	Scheduled Queue
+fifty	2.260000	0	25.528482	Scheduled Queue
+fifty	1.360000	1	25.528694	Scheduled Queue
+fifty	1.720000	1	25.528632	Scheduled Queue
+fifty	2.080000	1	25.528544	Scheduled Queue
+fifty	2.440000	1	25.528492	Scheduled Queue
+fifty	2.800000	1	25.528431	Scheduled Queue
+fifty	1.540000	2	25.528701	Scheduled Queue
+fifty	1.900000	2	25.528647	Scheduled Queue
+fifty	2.260000	2	25.528549	Scheduled Queue
+fifty	2.620000	2	25.528498	Scheduled Queue
+fifty	1.000000	2	25.528434	Scheduled Queue
+fifty	1.720000	3	25.528778	Scheduled Queue
+fifty	2.080000	3	25.528650	Scheduled Queue
+fifty	2.440000	3	25.528555	Scheduled Queue
+fifty	2.800000	3	25.528505	Scheduled Queue
+fifty	1.180000	3	25.528436	Scheduled Queue
+fifty	1.900000	4	25.528784	Scheduled Queue
+fifty	2.260000	4	25.528655	Scheduled Queue
+fifty	2.620000	4	25.528592	Scheduled Queue
+fifty	1.000000	4	25.528513	Scheduled Queue
+fifty	1.360000	4	25.528439	Scheduled Queue
+fifty	1.720000	4	25.528403	Scheduled Queue
+fifty	2.440000	5	25.528660	Scheduled Queue
+fifty	2.800000	5	25.528604	Scheduled Queue
+fifty	1.180000	5	25.528520	Scheduled Queue
+fifty	1.540000	5	25.528441	Scheduled Queue
+fifty	1.900000	5	25.528418	Scheduled Queue
+fifty	2.620000	6	25.528665	Scheduled Queue
+fifty	1.000000	6	25.528609	Scheduled Queue
+fifty	1.360000	6	25.528524	Scheduled Queue
+fifty	1.720000	6	25.528446	Scheduled Queue
+fifty	2.080000	6	25.528421	Scheduled Queue
+fifty	2.800000	7	25.528671	Scheduled Queue
+fifty	1.180000	7	25.528613	Scheduled Queue
+fifty	1.540000	7	25.528529	Scheduled Queue
+fifty	1.900000	7	25.528467	Scheduled Queue
+fifty	2.260000	7	25.528423	Scheduled Queue
+fifty	1.000000	8	25.528677	Scheduled Queue
+fifty	1.360000	8	25.528623	Scheduled Queue
+fifty	1.720000	8	25.528533	Scheduled Queue
+fifty	2.080000	8	25.528474	Scheduled Queue
+fifty	2.440000	8	25.528426	Scheduled Queue
+
+job running: fifty>q f
+Quitting and terminating queued and running jobs
+Current running job name: fifty
+Submitted queue size: 0
+Scheduled queue size: 44
+Completed queue size: 5
+
+currently running job 
+name: fifty priority: 0 cpu_time: 1.180000 starting_time: 33.236893
+Individual Job Performance Report
+name: fifty priority: 0 cpu time: 1.000000 arrival: 25.528382 start: 25.528472 finish 26.529133 wait:0.000090
+name: fifty priority: 1 cpu time: 1.180000 arrival: 25.528394 start: 26.529134 finish 27.709960 wait:1.000740
+name: fifty priority: 2 cpu time: 1.360000 arrival: 25.528397 start: 27.709963 finish 29.071436 wait:2.181566
+name: fifty priority: 3 cpu time: 1.540000 arrival: 25.528400 start: 29.071437 finish 30.612083 wait:3.543037
+name: fifty priority: 0 cpu time: 2.620000 arrival: 25.528428 start: 30.612084 finish 33.236890 wait:5.083656
+
+Total Performance Report
+Total number of job submitted: 	5
+Average turnaround time: 	3.903500 seconds
+Average CPU time: 		1.540000 seconds
+Average waiting time: 		2.361818 seconds
+Throughput: 			0.256180 jobs/second
+
+]0;rolf@i7-laptop: ~/c_coding/aubatch/src[01;32mrolf@i7-laptop[00m:[01;34m~/c_coding/aubatch/src[00m$ ./aubatch 
+Welcome to BlockOps's batch job scheduler Version 1.0
+
+Type 'help' to find more about AUbatch commands.
+>help
+run <job> <time> <pri>: submit a job named <job>,
+			execution time is <time>,
+			priority is <pri>.
+list: display the job status.
+fcfs: change the scheduling policy to FCFS.
+sjf: change the scheduling policy to SJF.
+priority: change the scheduling policy to priority.
+test <benchmark> <policy> <num_of_jobs> <priority_levels>
+     <min_CPU_time> <max_CPU_time> <arrival rate>
+batch <benchmark> <policy> <num_of_jobs> <priority_levels>
+     <min_CPU_time> <max_CPU_time> <arrival rate>
+quit: exit AUbatch
+reset: clear the completed queue
+statistics: show statistics on the completed queue
+performance: run the automated performance test suite and output to file
+
+>test twenty priority 20 5 1 10 1
+Starting benchmark, deleting current completed queue
+1	twenty	0	1.000000	28.607109 
+2	twenty	1	1.450000	29.607280 
+3	twenty	2	1.900000	30.607414 
+4	twenty	3	2.350000	31.607536 
+5	twenty	4	2.800000	32.607665 
+6	twenty	0	3.250000	33.607845 
+7	twenty	1	3.700000	34.607976 
+8	twenty	2	4.150000	35.608112 
+9	twenty	3	4.600000	36.608240 
+10	twenty	4	5.050000	37.608358 
+11	twenty	0	5.500000	38.608509 
+12	twenty	1	5.950000	39.608657 
+13	twenty	2	6.400000	40.608786 
+14	twenty	3	6.850000	41.608888 
+15	twenty	4	7.300000	42.609003 
+16	twenty	0	7.750000	43.609146 
+17	twenty	1	8.200000	44.609284 
+18	twenty	2	8.650000	45.609417 
+19	twenty	3	9.100000	46.609523 
+20	twenty	4	9.550000	47.609603 
+done submitting jobs
+
+Approximate time left is 78.600000
+Individual Job Performance Report
+name: twenty priority: 0 cpu time: 1.000000 arrival: 28.607109 start: 28.607135 finish 29.607929 wait:0.000026
+name: twenty priority: 1 cpu time: 1.450000 arrival: 29.607280 start: 29.607931 finish 31.059889 wait:0.000651
+name: twenty priority: 2 cpu time: 1.900000 arrival: 30.607414 start: 31.059891 finish 32.961622 wait:0.452477
+name: twenty priority: 3 cpu time: 2.350000 arrival: 31.607536 start: 32.961624 finish 35.313100 wait:1.354088
+name: twenty priority: 0 cpu time: 3.250000 arrival: 33.607845 start: 35.313101 finish 38.564518 wait:1.705256
+name: twenty priority: 1 cpu time: 3.700000 arrival: 34.607976 start: 38.564520 finish 42.266003 wait:3.956544
+name: twenty priority: 0 cpu time: 5.500000 arrival: 38.608509 start: 42.266004 finish 47.766661 wait:3.657495
+name: twenty priority: 0 cpu time: 7.750000 arrival: 43.609146 start: 47.766662 finish 55.517352 wait:4.157516
+name: twenty priority: 1 cpu time: 8.200000 arrival: 44.609284 start: 55.517354 finish 63.721767 wait:10.908070
+name: twenty priority: 1 cpu time: 5.950000 arrival: 39.608657 start: 63.721769 finish 69.672948 wait:24.113112
+name: twenty priority: 2 cpu time: 8.650000 arrival: 45.609417 start: 69.672952 finish 78.324557 wait:24.063535
+name: twenty priority: 2 cpu time: 6.400000 arrival: 40.608786 start: 78.324558 finish 84.725399 wait:37.715772
+name: twenty priority: 2 cpu time: 4.150000 arrival: 35.608112 start: 84.725403 finish 88.876980 wait:49.117291
+name: twenty priority: 3 cpu time: 9.100000 arrival: 46.609523 start: 88.876982 finish 97.977671 wait:42.267459
+name: twenty priority: 3 cpu time: 6.850000 arrival: 41.608888 start: 97.977672 finish 104.828339 wait:56.368784
+name: twenty priority: 3 cpu time: 4.600000 arrival: 36.608240 start: 104.828341 finish 109.429232 wait:68.220101
+name: twenty priority: 4 cpu time: 9.550000 arrival: 47.609603 start: 109.429234 finish 118.980248 wait:61.819631
+name: twenty priority: 4 cpu time: 7.300000 arrival: 42.609003 start: 118.980250 finish 126.280879 wait:76.371247
+name: twenty priority: 4 cpu time: 5.050000 arrival: 37.608358 start: 126.280880 finish 131.331470 wait:88.672522
+name: twenty priority: 4 cpu time: 2.800000 arrival: 32.607665 start: 131.331471 finish 134.132099 wait:98.723806
+
+Total Performance Report
+Total number of job submitted: 	20
+Average turnaround time: 	37.958516 seconds
+Average CPU time: 		5.275000 seconds
+Average waiting time: 		32.682269 seconds
+Throughput: 			0.026345 jobs/second
+
+>test twenty sjf 20 5 1 10 0.5
+Starting benchmark, deleting current completed queue
+1	twenty	0	1.000000	151.941270 
+2	twenty	1	1.450000	152.441505 
+3	twenty	2	1.900000	152.941586 
+4	twenty	3	2.350000	153.441688 
+5	twenty	4	2.800000	153.941769 
+6	twenty	0	3.250000	154.441918 
+7	twenty	1	3.700000	154.942031 
+8	twenty	2	4.150000	155.442149 
+9	twenty	3	4.600000	155.942256 
+10	twenty	4	5.050000	156.442369 
+11	twenty	0	5.500000	156.942452 
+12	twenty	1	5.950000	157.442543 
+13	twenty	2	6.400000	157.942654 
+14	twenty	3	6.850000	158.442769 
+15	twenty	4	7.300000	158.942922 
+16	twenty	0	7.750000	159.443057 
+17	twenty	1	8.200000	159.943154 
+18	twenty	2	8.650000	160.443293 
+19	twenty	3	9.100000	160.943390 
+20	twenty	4	9.550000	161.443504 
+done submitting jobs
+
+Approximate time left is 92.750000
+Individual Job Performance Report
+name: twenty priority: 0 cpu time: 1.000000 arrival: 151.941270 start: 151.941398 finish 152.943029 wait:0.000128
+name: twenty priority: 1 cpu time: 1.450000 arrival: 152.441505 start: 152.943030 finish 154.393670 wait:0.501525
+name: twenty priority: 2 cpu time: 1.900000 arrival: 152.941586 start: 154.393671 finish 156.294382 wait:1.452085
+name: twenty priority: 3 cpu time: 2.350000 arrival: 153.441688 start: 156.294383 finish 158.645131 wait:2.852695
+name: twenty priority: 4 cpu time: 2.800000 arrival: 153.941769 start: 158.645132 finish 161.445969 wait:4.703363
+name: twenty priority: 0 cpu time: 3.250000 arrival: 154.441918 start: 161.445970 finish 164.698943 wait:7.004052
+name: twenty priority: 1 cpu time: 3.700000 arrival: 154.942031 start: 164.698944 finish 168.399655 wait:9.756913
+name: twenty priority: 2 cpu time: 4.150000 arrival: 155.442149 start: 168.399656 finish 172.550482 wait:12.957507
+name: twenty priority: 3 cpu time: 4.600000 arrival: 155.942256 start: 172.550483 finish 177.151329 wait:16.608227
+name: twenty priority: 4 cpu time: 5.050000 arrival: 156.442369 start: 177.151332 finish 182.202898 wait:20.708963
+name: twenty priority: 0 cpu time: 5.500000 arrival: 156.942452 start: 182.202900 finish 187.703518 wait:25.260448
+name: twenty priority: 1 cpu time: 5.950000 arrival: 157.442543 start: 187.703519 finish 193.654215 wait:30.260976
+name: twenty priority: 2 cpu time: 6.400000 arrival: 157.942654 start: 193.654216 finish 200.059114 wait:35.711562
+name: twenty priority: 3 cpu time: 6.850000 arrival: 158.442769 start: 200.059115 finish 206.909889 wait:41.616346
+name: twenty priority: 4 cpu time: 7.300000 arrival: 158.942922 start: 206.909890 finish 214.210550 wait:47.966968
+name: twenty priority: 0 cpu time: 7.750000 arrival: 159.443057 start: 214.210551 finish 221.961427 wait:54.767494
+name: twenty priority: 1 cpu time: 8.200000 arrival: 159.943154 start: 221.961432 finish 230.163491 wait:62.018278
+name: twenty priority: 2 cpu time: 8.650000 arrival: 160.443293 start: 230.163495 finish 238.815288 wait:69.720202
+name: twenty priority: 3 cpu time: 9.100000 arrival: 160.943390 start: 238.815292 finish 247.917193 wait:77.871902
+name: twenty priority: 4 cpu time: 9.550000 arrival: 161.443504 start: 247.917195 finish 257.467810 wait:86.473691
+
+Total Performance Report
+Total number of job submitted: 	20
+Average turnaround time: 	35.686985 seconds
+Average CPU time: 		5.275000 seconds
+Average waiting time: 		30.410666 seconds
+Throughput: 			0.028021 jobs/second
+
+>help
+run <job> <time> <pri>: submit a job named <job>,
+			execution time is <time>,
+			priority is <pri>.
+list: display the job status.
+fcfs: change the scheduling policy to FCFS.
+sjf: change the scheduling policy to SJF.
+priority: change the scheduling policy to priority.
+test <benchmark> <policy> <num_of_jobs> <priority_levels>
+     <min_CPU_time> <max_CPU_time> <arrival rate>
+batch <benchmark> <policy> <num_of_jobs> <priority_levels>
+     <min_CPU_time> <max_CPU_time> <arrival rate>
+quit: exit AUbatch
+reset: clear the completed queue
+statistics: show statistics on the completed queue
+performance: run the automated performance test suite and output to file
+
+>p
+Starting performance test - 9 sets of data generated.
+A file of the results is available in ./data/performance_data.csv
+FCFS & arrival rate: 0.100000 
+ID	name	pri	cpu		arrival
+1	test00	0	3.000000	288.702839 
+2	test00	1	2.916667	288.802966 
+3	test00	2	2.833333	288.903176 
+4	test00	0	2.750000	289.003278 
+5	test00	1	2.666667	289.103409 
+6	test00	2	2.583333	289.203557 
+7	test00	0	2.500000	289.303696 
+8	test00	1	2.416667	289.403807 
+9	test00	2	2.333333	289.503907 
+10	test00	0	2.250000	289.604026 
+11	test00	1	2.166667	289.704185 
+12	test00	2	2.083333	289.804281 
+13	test00	0	2.000000	289.904377 
+14	test00	1	1.916667	290.004526 
+15	test00	2	1.833333	290.104674 
+16	test00	0	1.750000	290.204812 
+17	test00	1	1.666667	290.304939 
+18	test00	2	1.583333	290.405026 
+19	test00	0	1.500000	290.507999 
+20	test00	1	1.416667	290.608100 
+21	test00	2	1.333333	290.708213 
+22	test00	0	1.250000	290.808326 
+23	test00	1	1.166667	290.908447 
+24	test00	2	1.083333	291.008617 
+25	test00	0	1.000000	291.108783 
+done submitting jobs
+
+Approximate time left is 46.999999
+jobs are done running, starting calculations
+1	test00	0	3.000000	288.702839 
+2	test00	1	2.916667	288.802966 
+3	test00	2	2.833333	288.903176 
+4	test00	0	2.750000	289.003278 
+5	test00	1	2.666667	289.103409 
+6	test00	2	2.583333	289.203557 
+7	test00	0	2.500000	289.303696 
+8	test00	1	2.416667	289.403807 
+9	test00	2	2.333333	289.503907 
+10	test00	0	2.250000	289.604026 
+11	test00	1	2.166667	289.704185 
+12	test00	2	2.083333	289.804281 
+13	test00	0	2.000000	289.904377 
+14	test00	1	1.916667	290.004526 
+15	test00	2	1.833333	290.104674 
+16	test00	0	1.750000	290.204812 
+17	test00	1	1.666667	290.304939 
+18	test00	2	1.583333	290.405026 
+19	test00	0	1.500000	290.507999 
+20	test00	1	1.416667	290.608100 
+21	test00	2	1.333333	290.708213 
+22	test00	0	1.250000	290.808326 
+23	test00	1	1.166667	290.908447 
+24	test00	2	1.083333	291.008617 
+25	test00	0	1.000000	291.108783 
+test00 FCFS arrival rate: 0.100000 throughput: 0.499756 jobs/sec mean response: 29.143369 sec max: 47.618474 sec min response: 3.000859 sec std deviation: 13.544360 sec
+
+
+SJF & arrival rate: 0.100000 
+ID	name	pri	cpu		arrival
+1	test01	0	3.000000	339.214195 
+2	test01	1	2.916667	339.314297 
+3	test01	2	2.833333	339.414382 
+4	test01	0	2.750000	339.514488 
+5	test01	1	2.666667	339.614608 
+6	test01	2	2.583333	339.714700 
+7	test01	0	2.500000	339.814834 
+8	test01	1	2.416667	339.914947 
+9	test01	2	2.333333	340.015190 
+10	test01	0	2.250000	340.115265 
+11	test01	1	2.166667	340.215397 
+12	test01	2	2.083333	340.315533 
+13	test01	0	2.000000	340.415649 
+14	test01	1	1.916667	340.515826 
+15	test01	2	1.833333	340.615928 
+16	test01	0	1.750000	340.716123 
+17	test01	1	1.666667	340.816245 
+18	test01	2	1.583333	340.916330 
+19	test01	0	1.500000	341.016515 
+20	test01	1	1.416667	341.116594 
+21	test01	2	1.333333	341.216692 
+22	test01	0	1.250000	341.316784 
+23	test01	1	1.166667	341.417105 
+24	test01	2	1.083333	341.517346 
+25	test01	0	1.000000	341.617462 
+done submitting jobs
+
+Approximate time left is 46.999999
+jobs are done running, starting calculations
+1	test01	0	3.000000	339.214195 
+25	test01	0	1.000000	341.617462 
+24	test01	2	1.083333	341.517346 
+23	test01	1	1.166667	341.417105 
+22	test01	0	1.250000	341.316784 
+21	test01	2	1.333333	341.216692 
+20	test01	1	1.416667	341.116594 
+19	test01	0	1.500000	341.016515 
+18	test01	2	1.583333	340.916330 
+17	test01	1	1.666667	340.816245 
+16	test01	0	1.750000	340.716123 
+15	test01	2	1.833333	340.615928 
+14	test01	1	1.916667	340.515826 
+13	test01	0	2.000000	340.415649 
+12	test01	2	2.083333	340.315533 
+11	test01	1	2.166667	340.215397 
+10	test01	0	2.250000	340.115265 
+9	test01	2	2.333333	340.015190 
+8	test01	1	2.416667	339.914947 
+7	test01	0	2.500000	339.814834 
+6	test01	2	2.583333	339.714700 
+5	test01	1	2.666667	339.614608 
+4	test01	0	2.750000	339.514488 
+3	test01	2	2.833333	339.414382 
+2	test01	1	2.916667	339.314297 
+test01 SJF arrival rate: 0.100000 throughput: 0.499621 jobs/sec mean response: 21.486937 sec max: 49.937796 sec min response: 1.598783 sec std deviation: 14.847877 sec
+
+
+Priority & arrival rate: 0.100000 
+ID	name	pri	cpu		arrival
+1	test02	0	3.000000	389.723245 
+2	test02	1	2.916667	389.823413 
+3	test02	2	2.833333	389.923537 
+4	test02	0	2.750000	390.023649 
+5	test02	1	2.666667	390.123746 
+6	test02	2	2.583333	390.223845 
+7	test02	0	2.500000	390.323950 
+8	test02	1	2.416667	390.424049 
+9	test02	2	2.333333	390.524183 
+10	test02	0	2.250000	390.624313 
+11	test02	1	2.166667	390.724444 
+12	test02	2	2.083333	390.824573 
+13	test02	0	2.000000	390.924680 
+14	test02	1	1.916667	391.024788 
+15	test02	2	1.833333	391.124889 
+16	test02	0	1.750000	391.225008 
+17	test02	1	1.666667	391.325224 
+18	test02	2	1.583333	391.425326 
+19	test02	0	1.500000	391.525446 
+20	test02	1	1.416667	391.625533 
+21	test02	2	1.333333	391.725620 
+22	test02	0	1.250000	391.825812 
+23	test02	1	1.166667	391.925972 
+24	test02	2	1.083333	392.026089 
+25	test02	0	1.000000	392.126233 
+done submitting jobs
+
+Approximate time left is 46.999999
+jobs are done running, starting calculations
+1	test02	0	3.000000	389.723245 
+4	test02	0	2.750000	390.023649 
+25	test02	0	1.000000	392.126233 
+22	test02	0	1.250000	391.825812 
+19	test02	0	1.500000	391.525446 
+16	test02	0	1.750000	391.225008 
+13	test02	0	2.000000	390.924680 
+10	test02	0	2.250000	390.624313 
+7	test02	0	2.500000	390.323950 
+23	test02	1	1.166667	391.925972 
+20	test02	1	1.416667	391.625533 
+17	test02	1	1.666667	391.325224 
+14	test02	1	1.916667	391.024788 
+11	test02	1	2.166667	390.724444 
+8	test02	1	2.416667	390.424049 
+5	test02	1	2.666667	390.123746 
+2	test02	1	2.916667	389.823413 
+24	test02	2	1.083333	392.026089 
+21	test02	2	1.333333	391.725620 
+18	test02	2	1.583333	391.425326 
+15	test02	2	1.833333	391.124889 
+12	test02	2	2.083333	390.824573 
+9	test02	2	2.333333	390.524183 
+6	test02	2	2.583333	390.223845 
+3	test02	2	2.833333	389.923537 
+test02 Priority arrival rate: 0.100000 throughput: 0.499553 jobs/sec mean response: 24.129475 sec max: 49.844399 sec min response: 3.001921 sec std deviation: 14.078999 sec
+
+
+FCFS & arrival rate: 0.500000 
+ID	name	pri	cpu		arrival
+1	test10	0	3.000000	440.232153 
+2	test10	1	2.916667	440.732287 
+3	test10	2	2.833333	441.232401 
+4	test10	0	2.750000	441.732525 
+5	test10	1	2.666667	442.232682 
+6	test10	2	2.583333	442.732803 
+7	test10	0	2.500000	443.232908 
+8	test10	1	2.416667	443.733132 
+9	test10	2	2.333333	444.233283 
+10	test10	0	2.250000	444.733429 
+11	test10	1	2.166667	445.233544 
+12	test10	2	2.083333	445.733692 
+13	test10	0	2.000000	446.233849 
+14	test10	1	1.916667	446.733957 
+15	test10	2	1.833333	447.234056 
+16	test10	0	1.750000	447.734193 
+17	test10	1	1.666667	448.234331 
+18	test10	2	1.583333	448.734437 
+19	test10	0	1.500000	449.234668 
+20	test10	1	1.416667	449.734794 
+21	test10	2	1.333333	450.234890 
+22	test10	0	1.250000	450.735130 
+23	test10	1	1.166667	451.235242 
+24	test10	2	1.083333	451.735478 
+25	test10	0	1.000000	452.235672 
+done submitting jobs
+
+Approximate time left is 35.833333
+jobs are done running, starting calculations
+1	test10	0	3.000000	440.232153 
+2	test10	1	2.916667	440.732287 
+3	test10	2	2.833333	441.232401 
+4	test10	0	2.750000	441.732525 
+5	test10	1	2.666667	442.232682 
+6	test10	2	2.583333	442.732803 
+7	test10	0	2.500000	443.232908 
+8	test10	1	2.416667	443.733132 
+9	test10	2	2.333333	444.233283 
+10	test10	0	2.250000	444.733429 
+11	test10	1	2.166667	445.233544 
+12	test10	2	2.083333	445.733692 
+13	test10	0	2.000000	446.233849 
+14	test10	1	1.916667	446.733957 
+15	test10	2	1.833333	447.234056 
+16	test10	0	1.750000	447.734193 
+17	test10	1	1.666667	448.234331 
+18	test10	2	1.583333	448.734437 
+19	test10	0	1.500000	449.234668 
+20	test10	1	1.416667	449.734794 
+21	test10	2	1.333333	450.234890 
+22	test10	0	1.250000	450.735130 
+23	test10	1	1.166667	451.235242 
+24	test10	2	1.083333	451.735478 
+25	test10	0	1.000000	452.235672 
+test10 FCFS arrival rate: 0.500000 throughput: 0.499743 jobs/sec mean response: 24.343836 sec max: 38.022157 sec min response: 3.001585 sec std deviation: 10.698494 sec
+
+
+SJF & arrival rate: 0.500000 
+ID	name	pri	cpu		arrival
+1	test11	0	3.000000	490.739610 
+2	test11	1	2.916667	491.239759 
+3	test11	2	2.833333	491.739878 
+4	test11	0	2.750000	492.239990 
+5	test11	1	2.666667	492.740110 
+6	test11	2	2.583333	493.240222 
+7	test11	0	2.500000	493.740372 
+8	test11	1	2.416667	494.240510 
+9	test11	2	2.333333	494.740639 
+10	test11	0	2.250000	495.240756 
+11	test11	1	2.166667	495.740875 
+12	test11	2	2.083333	496.240975 
+13	test11	0	2.000000	496.741239 
+14	test11	1	1.916667	497.241361 
+15	test11	2	1.833333	497.741542 
+16	test11	0	1.750000	498.241718 
+17	test11	1	1.666667	498.741859 
+18	test11	2	1.583333	499.241990 
+19	test11	0	1.500000	499.742070 
+20	test11	1	1.416667	500.242314 
+21	test11	2	1.333333	500.742411 
+22	test11	0	1.250000	501.242596 
+23	test11	1	1.166667	501.742718 
+24	test11	2	1.083333	502.242820 
+25	test11	0	1.000000	502.742949 
+done submitting jobs
+
+Approximate time left is 36.916666
+jobs are done running, starting calculations
+1	test11	0	3.000000	490.739610 
+7	test11	0	2.500000	493.740372 
+12	test11	2	2.083333	496.240975 
+16	test11	0	1.750000	498.241718 
+19	test11	0	1.500000	499.742070 
+22	test11	0	1.250000	501.242596 
+25	test11	0	1.000000	502.742949 
+24	test11	2	1.083333	502.242820 
+23	test11	1	1.166667	501.742718 
+21	test11	2	1.333333	500.742411 
+20	test11	1	1.416667	500.242314 
+18	test11	2	1.583333	499.241990 
+17	test11	1	1.666667	498.741859 
+15	test11	2	1.833333	497.741542 
+14	test11	1	1.916667	497.241361 
+13	test11	0	2.000000	496.741239 
+11	test11	1	2.166667	495.740875 
+10	test11	0	2.250000	495.240756 
+9	test11	2	2.333333	494.740639 
+8	test11	1	2.416667	494.240510 
+6	test11	2	2.583333	493.240222 
+5	test11	1	2.666667	492.740110 
+4	test11	0	2.750000	492.239990 
+3	test11	2	2.833333	491.739878 
+2	test11	1	2.916667	491.239759 
+test11 SJF arrival rate: 0.500000 throughput: 0.499723 jobs/sec mean response: 17.792302 sec max: 49.527554 sec min response: 1.087607 sec std deviation: 15.738363 sec
+
+
+Priority & arrival rate: 0.500000 
+ID	name	pri	cpu		arrival
+1	test12	0	3.000000	541.247368 
+2	test12	1	2.916667	541.747484 
+3	test12	2	2.833333	542.247618 
+4	test12	0	2.750000	542.747733 
+5	test12	1	2.666667	543.247847 
+6	test12	2	2.583333	543.748104 
+7	test12	0	2.500000	544.248252 
+8	test12	1	2.416667	544.748379 
+9	test12	2	2.333333	545.248488 
+10	test12	0	2.250000	545.748609 
+11	test12	1	2.166667	546.248704 
+12	test12	2	2.083333	546.748815 
+13	test12	0	2.000000	547.248945 
+14	test12	1	1.916667	547.749057 
+15	test12	2	1.833333	548.249187 
+16	test12	0	1.750000	548.749358 
+17	test12	1	1.666667	549.249477 
+18	test12	2	1.583333	549.749615 
+19	test12	0	1.500000	550.249733 
+20	test12	1	1.416667	550.749988 
+21	test12	2	1.333333	551.250064 
+22	test12	0	1.250000	551.750143 
+23	test12	1	1.166667	552.250266 
+24	test12	2	1.083333	552.750388 
+25	test12	0	1.000000	553.250479 
+done submitting jobs
+
+Approximate time left is 36.499999
+jobs are done running, starting calculations
+1	test12	0	3.000000	541.247368 
+4	test12	0	2.750000	542.747733 
+7	test12	0	2.500000	544.248252 
+10	test12	0	2.250000	545.748609 
+16	test12	0	1.750000	548.749358 
+22	test12	0	1.250000	551.750143 
+25	test12	0	1.000000	553.250479 
+19	test12	0	1.500000	550.249733 
+13	test12	0	2.000000	547.248945 
+23	test12	1	1.166667	552.250266 
+20	test12	1	1.416667	550.749988 
+17	test12	1	1.666667	549.249477 
+14	test12	1	1.916667	547.749057 
+11	test12	1	2.166667	546.248704 
+8	test12	1	2.416667	544.748379 
+5	test12	1	2.666667	543.247847 
+2	test12	1	2.916667	541.747484 
+24	test12	2	1.083333	552.750388 
+21	test12	2	1.333333	551.250064 
+18	test12	2	1.583333	549.749615 
+15	test12	2	1.833333	548.249187 
+12	test12	2	2.083333	546.748815 
+9	test12	2	2.333333	545.248488 
+6	test12	2	2.583333	543.748104 
+3	test12	2	2.833333	542.247618 
+test12 Priority arrival rate: 0.500000 throughput: 0.499283 jobs/sec mean response: 19.774971 sec max: 49.071537 sec min response: 2.530932 sec std deviation: 14.248365 sec
+
+
+FCFS & arrival rate: 1.000000 
+ID	name	pri	cpu		arrival
+1	test20	0	3.000000	591.754592 
+2	test20	1	2.916667	592.754705 
+3	test20	2	2.833333	593.754804 
+4	test20	0	2.750000	594.754936 
+5	test20	1	2.666667	595.755200 
+6	test20	2	2.583333	596.755356 
+7	test20	0	2.500000	597.755502 
+8	test20	1	2.416667	598.755619 
+9	test20	2	2.333333	599.755754 
+10	test20	0	2.250000	600.755904 
+11	test20	1	2.166667	601.755994 
+12	test20	2	2.083333	602.756117 
+13	test20	0	2.000000	603.756266 
+14	test20	1	1.916667	604.756467 
+15	test20	2	1.833333	605.756580 
+16	test20	0	1.750000	606.756664 
+17	test20	1	1.666667	607.756815 
+18	test20	2	1.583333	608.756959 
+19	test20	0	1.500000	609.757114 
+20	test20	1	1.416667	610.757236 
+21	test20	2	1.333333	611.757411 
+22	test20	0	1.250000	612.757597 
+23	test20	1	1.166667	613.757749 
+24	test20	2	1.083333	614.757918 
+25	test20	0	1.000000	615.758057 
+done submitting jobs
+
+Approximate time left is 23.749999
+jobs are done running, starting calculations
+1	test20	0	3.000000	591.754592 
+2	test20	1	2.916667	592.754705 
+3	test20	2	2.833333	593.754804 
+4	test20	0	2.750000	594.754936 
+5	test20	1	2.666667	595.755200 
+6	test20	2	2.583333	596.755356 
+7	test20	0	2.500000	597.755502 
+8	test20	1	2.416667	598.755619 
+9	test20	2	2.333333	599.755754 
+10	test20	0	2.250000	600.755904 
+11	test20	1	2.166667	601.755994 
+12	test20	2	2.083333	602.756117 
+13	test20	0	2.000000	603.756266 
+14	test20	1	1.916667	604.756467 
+15	test20	2	1.833333	605.756580 
+16	test20	0	1.750000	606.756664 
+17	test20	1	1.666667	607.756815 
+18	test20	2	1.583333	608.756959 
+19	test20	0	1.500000	609.757114 
+20	test20	1	1.416667	610.757236 
+21	test20	2	1.333333	611.757411 
+22	test20	0	1.250000	612.757597 
+23	test20	1	1.166667	613.757749 
+24	test20	2	1.083333	614.757918 
+25	test20	0	1.000000	615.758057 
+test20 FCFS arrival rate: 1.000000 throughput: 0.499698 jobs/sec mean response: 18.346167 sec max: 26.026710 sec min response: 3.000777 sec std deviation: 7.184061 sec
+
+
+SJF & arrival rate: 1.000000 
+ID	name	pri	cpu		arrival
+1	test21	0	3.000000	642.761158 
+2	test21	1	2.916667	643.761265 
+3	test21	2	2.833333	644.761397 
+4	test21	0	2.750000	645.761511 
+5	test21	1	2.666667	646.761636 
+6	test21	2	2.583333	647.761744 
+7	test21	0	2.500000	648.761980 
+8	test21	1	2.416667	649.762147 
+9	test21	2	2.333333	650.762387 
+10	test21	0	2.250000	651.762440 
+11	test21	1	2.166667	652.762537 
+12	test21	2	2.083333	653.762674 
+13	test21	0	2.000000	654.762792 
+14	test21	1	1.916667	655.762894 
+15	test21	2	1.833333	656.763031 
+16	test21	0	1.750000	657.763126 
+17	test21	1	1.666667	658.763244 
+18	test21	2	1.583333	659.763392 
+19	test21	0	1.500000	660.763524 
+20	test21	1	1.416667	661.763664 
+21	test21	2	1.333333	662.763758 
+22	test21	0	1.250000	663.763943 
+23	test21	1	1.166667	664.764109 
+24	test21	2	1.083333	665.764323 
+25	test21	0	1.000000	666.764477 
+done submitting jobs
+
+Approximate time left is 24.250000
+jobs are done running, starting calculations
+1	test21	0	3.000000	642.761158 
+4	test21	0	2.750000	645.761511 
+6	test21	2	2.583333	647.761744 
+9	test21	2	2.333333	650.762387 
+11	test21	1	2.166667	652.762537 
+13	test21	0	2.000000	654.762792 
+15	test21	2	1.833333	656.763031 
+17	test21	1	1.666667	658.763244 
+19	test21	0	1.500000	660.763524 
+20	test21	1	1.416667	661.763664 
+22	test21	0	1.250000	663.763943 
+23	test21	1	1.166667	664.764109 
+24	test21	2	1.083333	665.764323 
+25	test21	0	1.000000	666.764477 
+21	test21	2	1.333333	662.763758 
+18	test21	2	1.583333	659.763392 
+16	test21	0	1.750000	657.763126 
+14	test21	1	1.916667	655.762894 
+12	test21	2	2.083333	653.762674 
+10	test21	0	2.250000	651.762440 
+8	test21	1	2.416667	649.762147 
+7	test21	0	2.500000	648.761980 
+5	test21	1	2.666667	646.761636 
+3	test21	2	2.833333	644.761397 
+2	test21	1	2.916667	643.761265 
+test21 SJF arrival rate: 1.000000 throughput: 0.499729 jobs/sec mean response: 13.602055 sec max: 49.026997 sec min response: 1.509634 sec std deviation: 15.403804 sec
+
+
+Priority & arrival rate: 1.000000 
+ID	name	pri	cpu		arrival
+1	test22	0	3.000000	693.767899 
+2	test22	1	2.916667	694.768016 
+3	test22	2	2.833333	695.768229 
+4	test22	0	2.750000	696.768390 
+5	test22	1	2.666667	697.768514 
+6	test22	2	2.583333	698.768668 
+7	test22	0	2.500000	699.768830 
+8	test22	1	2.416667	700.768954 
+9	test22	2	2.333333	701.769101 
+10	test22	0	2.250000	702.769318 
+11	test22	1	2.166667	703.769481 
+12	test22	2	2.083333	704.769610 
+13	test22	0	2.000000	705.769730 
+14	test22	1	1.916667	706.769843 
+15	test22	2	1.833333	707.769966 
+16	test22	0	1.750000	708.770065 
+17	test22	1	1.666667	709.770191 
+18	test22	2	1.583333	710.770284 
+19	test22	0	1.500000	711.770430 
+20	test22	1	1.416667	712.770535 
+21	test22	2	1.333333	713.770719 
+22	test22	0	1.250000	714.770877 
+23	test22	1	1.166667	715.771015 
+24	test22	2	1.083333	716.771159 
+25	test22	0	1.000000	717.771247 
+done submitting jobs
+
+Approximate time left is 24.583333
+jobs are done running, starting calculations
+1	test22	0	3.000000	693.767899 
+4	test22	0	2.750000	696.768390 
+2	test22	1	2.916667	694.768016 
+7	test22	0	2.500000	699.768830 
+10	test22	0	2.250000	702.769318 
+13	test22	0	2.000000	705.769730 
+16	test22	0	1.750000	708.770065 
+14	test22	1	1.916667	706.769843 
+19	test22	0	1.500000	711.770430 
+20	test22	1	1.416667	712.770535 
+22	test22	0	1.250000	714.770877 
+23	test22	1	1.166667	715.771015 
+25	test22	0	1.000000	717.771247 
+17	test22	1	1.666667	709.770191 
+11	test22	1	2.166667	703.769481 
+8	test22	1	2.416667	700.768954 
+5	test22	1	2.666667	697.768514 
+24	test22	2	1.083333	716.771159 
+21	test22	2	1.333333	713.770719 
+18	test22	2	1.583333	710.770284 
+15	test22	2	1.833333	707.769966 
+12	test22	2	2.083333	704.769610 
+9	test22	2	2.333333	701.769101 
+6	test22	2	2.583333	698.768668 
+3	test22	2	2.833333	695.768229 
+test22 Priority arrival rate: 1.000000 throughput: 0.499795 jobs/sec mean response: 14.662663 sec max: 48.020194 sec min response: 1.424021 sec std deviation: 13.903387 sec
+
+
+performance test is complete
+>help
+run <job> <time> <pri>: submit a job named <job>,
+			execution time is <time>,
+			priority is <pri>.
+list: display the job status.
+fcfs: change the scheduling policy to FCFS.
+sjf: change the scheduling policy to SJF.
+priority: change the scheduling policy to priority.
+test <benchmark> <policy> <num_of_jobs> <priority_levels>
+     <min_CPU_time> <max_CPU_time> <arrival rate>
+batch <benchmark> <policy> <num_of_jobs> <priority_levels>
+     <min_CPU_time> <max_CPU_time> <arrival rate>
+quit: exit AUbatch
+reset: clear the completed queue
+statistics: show statistics on the completed queue
+performance: run the automated performance test suite and output to file
+
+>l
+Total number of jobs in the queue: 0
+Scheduling Policy: Priority-Lowest Priority Jobs First
+Name	CPU_Time	Pri	Arrival_time	Progress
+
+>s
+Individual Job Performance Report
+name: test22 priority: 0 cpu time: 3.000000 arrival: 693.767899 start: 693.767977 finish 696.769627 wait:0.000078
+name: test22 priority: 0 cpu time: 2.750000 arrival: 696.768390 start: 696.769628 finish 699.520380 wait:0.001238
+name: test22 priority: 1 cpu time: 2.916667 arrival: 694.768016 start: 699.520381 finish 702.437697 wait:4.752365
+name: test22 priority: 0 cpu time: 2.500000 arrival: 699.768830 start: 702.437711 finish 704.938370 wait:2.668881
+name: test22 priority: 0 cpu time: 2.250000 arrival: 702.769318 start: 704.938371 finish 707.189144 wait:2.169053
+name: test22 priority: 0 cpu time: 2.000000 arrival: 705.769730 start: 707.189145 finish 709.189901 wait:1.419415
+name: test22 priority: 0 cpu time: 1.750000 arrival: 708.770065 start: 709.189902 finish 710.940943 wait:0.419837
+name: test22 priority: 1 cpu time: 1.916667 arrival: 706.769843 start: 710.940944 finish 712.858281 wait:4.171101
+name: test22 priority: 0 cpu time: 1.500000 arrival: 711.770430 start: 712.858282 finish 714.358980 wait:1.087852
+name: test22 priority: 1 cpu time: 1.416667 arrival: 712.770535 start: 714.358981 finish 715.776419 wait:1.588446
+name: test22 priority: 0 cpu time: 1.250000 arrival: 714.770877 start: 715.776420 finish 717.027223 wait:1.005543
+name: test22 priority: 1 cpu time: 1.166667 arrival: 715.771015 start: 717.027224 finish 718.194612 wait:1.256209
+name: test22 priority: 0 cpu time: 1.000000 arrival: 717.771247 start: 718.194613 finish 719.195268 wait:0.423366
+name: test22 priority: 1 cpu time: 1.666667 arrival: 709.770191 start: 719.195269 finish 720.862900 wait:9.425078
+name: test22 priority: 1 cpu time: 2.166667 arrival: 703.769481 start: 720.862903 finish 723.031155 wait:17.093422
+name: test22 priority: 1 cpu time: 2.416667 arrival: 700.768954 start: 723.031156 finish 725.448469 wait:22.262202
+name: test22 priority: 1 cpu time: 2.666667 arrival: 697.768514 start: 725.448471 finish 728.115857 wait:27.679957
+name: test22 priority: 2 cpu time: 1.083333 arrival: 716.771159 start: 728.115859 finish 729.199954 wait:11.344700
+name: test22 priority: 2 cpu time: 1.333333 arrival: 713.770719 start: 729.199955 finish 730.533944 wait:15.429236
+name: test22 priority: 2 cpu time: 1.583333 arrival: 710.770284 start: 730.533958 finish 732.117913 wait:19.763674
+name: test22 priority: 2 cpu time: 1.833333 arrival: 707.769966 start: 732.117915 finish 733.951944 wait:24.347949
+name: test22 priority: 2 cpu time: 2.083333 arrival: 704.769610 start: 733.951946 finish 736.035943 wait:29.182336
+name: test22 priority: 2 cpu time: 2.333333 arrival: 701.769101 start: 736.035945 finish 738.370151 wait:34.266844
+name: test22 priority: 2 cpu time: 2.583333 arrival: 698.768668 start: 738.370153 finish 740.954137 wait:39.601485
+name: test22 priority: 2 cpu time: 2.833333 arrival: 695.768229 start: 740.954151 finish 743.788423 wait:45.185922
+
+Total Performance Report
+Total number of job submitted: 	25
+Average turnaround time: 	14.662663 seconds
+Average CPU time: 		2.000000 seconds
+Average waiting time: 		12.661848 seconds
+Throughput: 			0.068200 jobs/second
+
+>r
+incorrect input. Usage: run <job> <time> <pri>
+deleting the completed queue
+>s
+
+No jobs have been completed
+>e quit
+No jobs in queue, no jobs running, quitting gracefully.
+
+No jobs have been completed
+]0;rolf@i7-laptop: ~/c_coding/aubatch/src[01;32mrolf@i7-laptop[00m:[01;34m~/c_coding/aubatch/src[00m$ exit
+exit
+
+Script done on 2021-03-16 00:15:27-0400

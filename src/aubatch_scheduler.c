@@ -11,9 +11,9 @@
 
 // function definitions
 
+// thread to check the submitted queue for new jobs and place them in scheduled queue
 void *tRunningSchedule(void *received_parameters)
 {
-
     // this is a continually running thread. It checks the submitted queue for new jobs
     // and places them in the scheduled queue.
     struct Job *newjob = NULL;
@@ -61,9 +61,9 @@ void *tRunningSchedule(void *received_parameters)
     return 0;
 }
 
+// get new job from head of submit queue
 int submitSchedule(struct Job **newjob)
 {
-    // get new job from head of submit queue
     if (head_job_submitted == NULL)
         return 1; //tried to get a job when none available
     *newjob = head_job_submitted;
@@ -73,6 +73,7 @@ int submitSchedule(struct Job **newjob)
     return 0;
 }
 
+// check policy, then put a new job at the correct place in scheduled queue
 int runningSchedule(struct Job *newjob)
 {
     // define scheduler function to put a job at the correct place in queue
@@ -106,6 +107,7 @@ int runningSchedule(struct Job *newjob)
     return 0;
 }
 
+// insertion sort algorithm on linked list to put job in queue at correct location
 int runningReSortJobs(struct Job **head_ref, enum Policy policy)
 {
     // this is insertion sort 
@@ -140,7 +142,7 @@ int runningReSortJobs(struct Job **head_ref, enum Policy policy)
 
 /* function to insert a newjob in a list in correct place. This uses
  * the job queue with global variable head. 
- * refactor with comparator function 
+ * refactor with comparator function because this is ugly
  */
 int runningSortedJobInsert(struct Job **head_ref, struct Job *newjob, enum Policy policy)
 {
@@ -211,11 +213,13 @@ int runningSortedJobInsert(struct Job **head_ref, struct Job *newjob, enum Polic
     return 0;
 }
 
+// print the details of a single job
 int print_job(struct Job *testjob){
     printf("%d\t%s\t%d\t%f\t%f \n", testjob->id, testjob->name, testjob->priority, testjob->cpu_time, testjob->arrival_time);
     return 0;
 }
 
+// calculate approximate waiting time of a new job
 double waiting_time(struct Job **head_ref, struct Job **newjob) {
     // traverse queue and find job, add up cpu_time, return time
     if (*head_ref == NULL) {
@@ -235,6 +239,7 @@ double waiting_time(struct Job **head_ref, struct Job **newjob) {
     return sum;
 }
 
+// calculate how much time is left in the queues
 double time_left(struct Job **head_ref) {
     // traverse queue and find job, add up cpu_time, return time
     if (*head_ref == NULL) {

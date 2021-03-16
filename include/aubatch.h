@@ -101,6 +101,8 @@ static const char *helpmenu[] = {
     "batch <benchmark> <policy> <num_of_jobs> <priority_levels>\n     <min_CPU_time> <max_CPU_time> <arrival rate>",
     "quit: exit AUbatch",
     "reset: clear the completed queue",
+    "statistics: show statistics on the completed queue",
+    "performance: run the automated performance test suite and output to file",
     /* Please add more menu options below */
     NULL};
 
