@@ -16,6 +16,7 @@
 #include <sys/time.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <math.h>
 #include "aubatch.h"
 
 int main(int argc, char *argv[])
@@ -738,6 +739,21 @@ int cmd_performance(int nargs, char **args)
     float arrival_rate = 0;
     int num_of_jobs = 25;
     char perf_test[24] = "";
+    double response_time = 0;
+    double response_time_mean = 0;
+    double response_time_total = 0;
+    double max_response_time = 0;
+    double min_response_time = 1000000;
+    double earliest_arrival_time = 10000000;
+    double latest_finish_time = 0;
+    struct Job *current = NULL;
+    int num_jobs_run = 0;
+    double response_times[num_of_jobs];
+    double response_deviation_total = 0;
+    double response_deviation_mean = 0;
+    double response_deviation = 0;
+    double throughput = 0;
+
     for (int i = 0; i < 3; i++)
     {
         if (i == 0)
@@ -784,17 +800,53 @@ int cmd_performance(int nargs, char **args)
             // when jobs are all done, get statistics and write to disc
             // average repsonse time, throughput, max response time, min response time,
             // response time standard deviation
-            // 
+            //
             // first wait for jobs to be done
             while ((submitted_size + scheduled_size > 0) || running_job != NULL)
             {
                 sleep(1);
             }
             // we have a queue of complete jobs - get the information
-            struct Job *current = head_job_completed;
-            while (current != NULL) {
-                
+            current = head_job_completed;
+            response_time_total = 0;
+            response_time = 0;
+            max_response_time = 0;
+            min_response_time = 1000000;
+            earliest_arrival_time = 10000000;
+            latest_finish_time = 0;
+            num_jobs_run = -1;
+            while (current != NULL)
+            {
+                num_jobs_run++;
+                if (current->finish_time > latest_finish_time)
+                    latest_finish_time = current->finish_time;
+                if (current->arrival_time < earliest_arrival_time)
+                    earliest_arrival_time = current->arrival_time;
+                response_time = current->finish_time - current->arrival_time;
+                response_times[num_jobs_run] = response_time;
+                if (response_time < min_response_time) min_response_time = response_time;
+                if (response_time > max_response_time) max_response_time = response_time;
+                current = current->next;
             }
+            // now we have the data needed to calculate performance
+            response_time_mean = 0;
+            response_time_total = 0;
+            for (int i = 0; i <= num_jobs_run; i++)
+            {
+                response_time_total += response_times[i];
+            }
+            response_time_mean = response_time_total / (num_jobs_run + 1);
+            response_deviation_total = 0;
+            for (int i = 0; i <= num_jobs_run; i++)
+            {
+                response_deviation_total += (response_times[i] - response_time_mean) * (response_times[i] - response_time_mean);
+            }
+            response_deviation_mean = response_deviation_total/(num_jobs_run + 1);
+            response_deviation = sqrt(response_deviation_mean);
+            throughput = (latest_finish_time - earliest_arrival_time)/(num_jobs_run + 1);
+            // now write all the data to disc for this job
+            // format is job name, throughput, avg resp time, max resp time, min resp time, resp time std deviation
+            fprintf(fptr, "%d%d,%f,%f,%f,%f,%f\n", i, j, throughput, response_time_mean, max_response_time, min_response_time,response_deviation);
         }
     }
     fclose(fptr);
