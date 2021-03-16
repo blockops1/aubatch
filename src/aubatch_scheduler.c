@@ -212,7 +212,7 @@ int runningSortedJobInsert(struct Job **head_ref, struct Job *newjob, enum Polic
 }
 
 int print_job(struct Job *testjob){
-    printf("%d %s %d %f %f \n", testjob->id, testjob->name, testjob->priority, testjob->cpu_time, testjob->arrival_time);
+    printf("%d\t%s\t%d\t%f\t%f \n", testjob->id, testjob->name, testjob->priority, testjob->cpu_time, testjob->arrival_time);
     return 0;
 }
 

@@ -717,6 +717,8 @@ int cmd_performance(int nargs, char **args)
     // 3 priority levels
     // arrival rate .1, .5, 1 second
     // create data directory
+    printf("Starting performance test - 9 sets of data generated.\n");
+    printf("A file of the results is available in ./data/performance_data.csv\n");
     struct stat st = {0};
 
     if (stat("./data", &st) == -1)
@@ -726,6 +728,7 @@ int cmd_performance(int nargs, char **args)
     // create and open file for writing in data directory
     FILE *fptr;
     fptr = fopen("./data/performance_data.csv", "w");
+    fprintf(fptr, "testij,policy,arrival_rate,throughput,response_time_mean,max_response_time,min_response_time,response_deviation\n");
     if (fptr == NULL)
     {
         printf("Error - can't open file");
@@ -733,8 +736,8 @@ int cmd_performance(int nargs, char **args)
     }
     // let's go! make data and write to file
     enum Policy policy_number = Invalid;
-    float max_cpu_time = 10;
-    float min_cpu_time = 1;
+    float max_cpu_time = 10.0;
+    float min_cpu_time = 1.0;
     int priority_high = 3;
     float arrival_rate = 0;
     int num_of_jobs = 25;
@@ -757,25 +760,41 @@ int cmd_performance(int nargs, char **args)
     for (int i = 0; i < 3; i++)
     {
         if (i == 0)
-            policy_number = FCFS;
+            arrival_rate = 0.1;
+
         if (i == 1)
-            policy_number = SJF;
+            arrival_rate = 0.5;
+
         if (i == 2)
-            policy_number = Priority;
+            arrival_rate = 1.0;
+
         for (int j = 0; j < 3; j++)
         {
             if (j == 0)
-                arrival_rate = 0.1;
+                policy_number = FCFS;
             if (j == 1)
-                arrival_rate = 0.5;
+                policy_number = SJF;
             if (j == 2)
-                arrival_rate = 1.0;
-
+                policy_number = Priority;
             delete_completed_queue();
             global_job_id = 0;
             currentPolicy = policy_number;
             double time_increment = (max_cpu_time - min_cpu_time) / (num_of_jobs);
-            sprintf(perf_test, "test %d %d\n", i, j);
+            sprintf(perf_test, "test%d%d", i, j);
+            if (currentPolicy == FCFS)
+            {
+                printf("FCFS ");
+            }
+            if (currentPolicy == SJF)
+            {
+                printf("SJF ");
+            }
+            if (currentPolicy == Priority)
+            {
+                printf("Priority ");
+            }
+            printf("& arrival rate: %f \n", arrival_rate);
+            printf("ID\tname\tpri\tcpu\t\tarrival\n");
             for (int i = 0; i < num_of_jobs; i++)
             {
                 // call cmd_run_job with loop for all the jobs
@@ -785,15 +804,14 @@ int cmd_performance(int nargs, char **args)
                 jobs[global_job_id].id = global_job_id;
                 jobs[global_job_id].name = jobnames[global_job_id];
                 jobs[global_job_id].priority = i % priority_high;
-                jobs[global_job_id].cpu_time = min_cpu_time + (time_increment * (i % num_of_jobs));
+                jobs[global_job_id].cpu_time = max_cpu_time - (time_increment * (i % num_of_jobs));
                 jobs[global_job_id].arrival_time = process_time();
                 jobs[global_job_id].next = NULL;
 
                 //current pointer at first job
                 newjob = &jobs[global_job_id];
                 print_job(newjob);
-                //sleep(1);
-                //printf("job %d arrived at about %f\n", job1.id, job1.arrival_time);
+
                 submitJob(newjob);
                 usleep(arrival_rate * 1000000);
             }
@@ -802,10 +820,13 @@ int cmd_performance(int nargs, char **args)
             // response time standard deviation
             //
             // first wait for jobs to be done
+            printf("done submitting jobs\n\n");
+            printf("Approximate time left is %f\n", time_left(&head_job_scheduled) + time_left(&head_job_submitted));
             while ((submitted_size + scheduled_size > 0) || running_job != NULL)
             {
                 sleep(1);
             }
+            printf("jobs are done running, starting calculations\n");
             // we have a queue of complete jobs - get the information
             current = head_job_completed;
             response_time_total = 0;
@@ -817,7 +838,7 @@ int cmd_performance(int nargs, char **args)
             num_jobs_run = -1;
             while (current != NULL)
             {
-                printf("job id: %d job name: %s", current->id, current->name);
+                print_job(current);
                 num_jobs_run++;
                 if (current->finish_time > latest_finish_time)
                     latest_finish_time = current->finish_time;
@@ -825,8 +846,10 @@ int cmd_performance(int nargs, char **args)
                     earliest_arrival_time = current->arrival_time;
                 response_time = current->finish_time - current->arrival_time;
                 response_times[num_jobs_run] = response_time;
-                if (response_time < min_response_time) min_response_time = response_time;
-                if (response_time > max_response_time) max_response_time = response_time;
+                if (response_time < min_response_time)
+                    min_response_time = response_time;
+                if (response_time > max_response_time)
+                    max_response_time = response_time;
                 current = current->next;
             }
             // now we have the data needed to calculate performance
@@ -842,14 +865,36 @@ int cmd_performance(int nargs, char **args)
             {
                 response_deviation_total += (response_times[i] - response_time_mean) * (response_times[i] - response_time_mean);
             }
-            response_deviation_mean = response_deviation_total/(num_jobs_run + 1);
+            response_deviation_mean = response_deviation_total / (num_jobs_run + 1);
             response_deviation = sqrt(response_deviation_mean);
-            throughput = (latest_finish_time - earliest_arrival_time)/(num_jobs_run + 1);
+            throughput = (num_jobs_run + 1) / (latest_finish_time - earliest_arrival_time);
             // now write all the data to disc for this job
             // format is job name, throughput, avg resp time, max resp time, min resp time, resp time std deviation
-            fprintf(fptr, "%d%d,%f,%f,%f,%f,%f\n", i, j, throughput, response_time_mean, max_response_time, min_response_time,response_deviation);
+            fprintf(fptr, "test%d%d,", i, j);
+            printf("test%d%d ", i, j);
+            if (currentPolicy == FCFS)
+            {
+                fprintf(fptr, "FCFS,");
+                printf("FCFS ");
+            }
+            if (currentPolicy == SJF)
+            {
+                fprintf(fptr, "SJF,");
+                printf("SJF ");
+            }
+            if (currentPolicy == Priority)
+            {
+                fprintf(fptr, "Priority,");
+                printf("Priority ");
+            }
+            fprintf(fptr, "%f,", arrival_rate);
+            printf("arrival rate: %f ", arrival_rate);
+            fprintf(fptr, "%f,%f,%f,%f,%f\n", throughput, response_time_mean, max_response_time, min_response_time, response_deviation);
+            printf("throughput: %f jobs/sec mean response: %f sec max: %f sec min response: %f sec std deviation: %f sec\n", throughput, response_time_mean, max_response_time, min_response_time, response_deviation);
+            printf("\n\n");
         }
     }
+    printf("performance test is complete\n");
     fclose(fptr);
     return 0;
 }
