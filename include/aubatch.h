@@ -20,6 +20,8 @@ int cmd_test_benchmark(int, char **);
 int cmd_large_batch(int, char **);
 int cmd_reset_queue(int, char**);
 int cmd_statistics(int, char **);
+int cmd_performance(int, char **);
+
 
 
 // global variables
@@ -82,6 +84,8 @@ static struct
     {"b", cmd_large_batch},
     {"statistics", cmd_statistics},
     {"s", cmd_statistics},
+    {"performance", cmd_performance},
+    {"p", cmd_performance},
     /* Please add more operations below. */
     {NULL, NULL}};
 

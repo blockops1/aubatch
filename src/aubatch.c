@@ -791,7 +791,7 @@ int cmd_performance(int nargs, char **args)
 
                 //current pointer at first job
                 newjob = &jobs[global_job_id];
-                //print_job(newjob);
+                print_job(newjob);
                 //sleep(1);
                 //printf("job %d arrived at about %f\n", job1.id, job1.arrival_time);
                 submitJob(newjob);
@@ -817,6 +817,7 @@ int cmd_performance(int nargs, char **args)
             num_jobs_run = -1;
             while (current != NULL)
             {
+                printf("job id: %d job name: %s", current->id, current->name);
                 num_jobs_run++;
                 if (current->finish_time > latest_finish_time)
                     latest_finish_time = current->finish_time;
